@@ -11,12 +11,23 @@ class Setting extends StatelessWidget {
       appBar: AppBar(
         title: Text("Settings"),
       ),
-      body: Center(
-        child: ElevatedButton(
-          child: Text("Text"),
-          onPressed: () {
-            SettingCubit.get(context).toggleTheme();
-          },
+      body: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Text("الوضع الليلي"),
+                MaterialButton(
+                    child: SettingCubit.get(context).DarkMode
+                        ? Text("تشغيل")
+                        : Text("ايقاف"),
+                    onPressed: () {
+                      SettingCubit.get(context).toggleTheme();
+                    })
+              ],
+            )
+          ],
         ),
       ),
     );

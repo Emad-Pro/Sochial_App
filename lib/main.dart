@@ -33,8 +33,12 @@ class Main extends StatelessWidget {
                 themeMode: SettingCubit.get(context).DarkMode
                     ? ThemeMode.dark
                     : ThemeMode.light,
-                theme: ThemeData.dark(),
-                darkTheme: ThemeData.light(),
+                theme: ThemeData.light(
+                  useMaterial3: true,
+                ),
+                darkTheme: ThemeData.dark(
+                  useMaterial3: true,
+                ),
                 home: const Setting())));
   }
 }
