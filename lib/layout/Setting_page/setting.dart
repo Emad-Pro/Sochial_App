@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../shared/SettingCubit/cubit.dart';
+import '../../shared/Cubit/SettingCubit/cubit.dart';
 
 class Setting extends StatelessWidget {
   const Setting({Key? key}) : super(key: key);

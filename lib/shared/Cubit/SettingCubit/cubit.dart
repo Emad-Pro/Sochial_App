@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_app_sochial/shared/SettingCubit/state.dart';
+import 'package:my_app_sochial/shared/Cubit/SettingCubit/state.dart';
 
-import '../locale/SharedPrefrences/CacheHelper.dart';
+import '../../locale/SharedPrefrences/CacheHelper.dart';
 
 class SettingCubit extends Cubit<SettingCubitState> {
   SettingCubit() : super(IntitialSettingCubit());
