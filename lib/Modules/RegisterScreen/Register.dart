@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../Components/components.dart';
-import '../../shared/RegisterCubit/cubit.dart';
-import '../../shared/RegisterCubit/states.dart';
+import '../../shared/Cubit/RegisterCubit/cubit.dart';
+import '../../shared/Cubit/RegisterCubit/states.dart';
 
 class Register extends StatelessWidget {
   TextEditingController NameController = TextEditingController();
