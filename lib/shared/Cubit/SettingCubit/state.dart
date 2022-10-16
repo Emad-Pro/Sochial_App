@@ -1,5 +1,5 @@
-abstract class SettingCubitState {}
+abstract class SettingStates {}
 
-class IntitialSettingCubit extends SettingCubitState {}
+class IntitialSettingCubit extends SettingStates {}
 
-class DarkModeState extends SettingCubitState {}
+class DarkModeState extends SettingStates {}

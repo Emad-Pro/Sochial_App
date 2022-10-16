@@ -1,14 +1,17 @@
-abstract class SochialLoginState {}
+abstract class socialLoginState {}
 
-class SochialLoginInitialState extends SochialLoginState {}
+class socialLoginInitialState extends socialLoginState {}
 
-class SochialLoginLoadingState extends SochialLoginState {}
+class socialLoginLoadingState extends socialLoginState {}
 
-class SochialLoginSuccessState extends SochialLoginState {}
-
-class SochialLoginErorrState extends SochialLoginState {
-  final String? Erorr;
-  SochialLoginErorrState(this.Erorr);
+class socialLoginSuccessState extends socialLoginState {
+  final String uId;
+  socialLoginSuccessState(this.uId);
 }
 
-class SochialLoginChangeOserctorAndIconState extends SochialLoginState {}
+class socialLoginErorrState extends socialLoginState {
+  final String? Erorr;
+  socialLoginErorrState(this.Erorr);
+}
+
+class socialLoginChangeOserctorAndIconState extends socialLoginState {}

@@ -5,7 +5,7 @@ import 'package:my_app_sochial/shared/Cubit/SettingCubit/state.dart';
 
 import '../../locale/SharedPrefrences/CacheHelper.dart';
 
-class SettingCubit extends Cubit<SettingCubitState> {
+class SettingCubit extends Cubit<SettingStates> {
   SettingCubit() : super(IntitialSettingCubit());
   static SettingCubit get(context) => BlocProvider.of(context);
 
@@ -35,7 +35,7 @@ class SettingCubit extends Cubit<SettingCubitState> {
     });
   }*/
 
-  // SettingCubit() : super(InititalSochialAppStates());
-  //static SochialCubit get(context) => BlocProvider.of(context);
+  // SettingCubit() : super(InititalsocialAppStates());
+  //static socialCubit get(context) => BlocProvider.of(context);
 
 }

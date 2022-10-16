@@ -1,16 +1,23 @@
-abstract class SochialRegisterState {}
+abstract class socialRegisterState {}
 
-class SochialRegisterInitialState extends SochialRegisterState {}
+class socialRegisterInitialState extends socialRegisterState {}
 
-class SochialRegisterLoadingState extends SochialRegisterState {}
+class socialRegisterLoadingState extends socialRegisterState {}
 
-class SochialRegisterSuccessState extends SochialRegisterState {}
+class socialRegisterSuccessState extends socialRegisterState {}
 
-class SochialRegisterErorrState extends SochialRegisterState {
+class socialRegisterErorrState extends socialRegisterState {
   final Erorr;
-  SochialRegisterErorrState(this.Erorr);
+  socialRegisterErorrState(this.Erorr);
 }
 
-class SochialRegisterChangeOserctorAndIconState extends SochialRegisterState {}
+class socialCreateUserSuccessState extends socialRegisterState {}
 
-class SochialRegisterCheckInternet extends SochialRegisterState {}
+class socialCreateUserErorrState extends socialRegisterState {
+  final Erorr;
+  socialCreateUserErorrState(this.Erorr);
+}
+
+class socialRegisterChangeOserctorAndIconState extends socialRegisterState {}
+
+class socialRegisterCheckInternet extends socialRegisterState {}

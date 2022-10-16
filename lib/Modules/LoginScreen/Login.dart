@@ -2,56 +2,82 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:my_app_sochial/Modules/RegisterScreen/Register.dart';
+import 'package:flutter_switch/flutter_switch.dart';
+import 'package:my_app_sochial/shared/locale/color/color.dart';
 
 import '../../Components/components.dart';
+import '../../layout/Home_Layout/home.dart';
 import '../../shared/Cubit/LoginCubit/cubit.dart';
 import '../../shared/Cubit/LoginCubit/states.dart';
 import '../../shared/Cubit/SettingCubit/cubit.dart';
+import '../../shared/locale/SharedPrefrences/CacheHelper.dart';
+import '../RegisterScreen/Register.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({Key? key}) : super(key: key);
-
+  colors color = colors();
   @override
   Widget build(BuildContext context) {
     TextEditingController EmailController = TextEditingController();
     TextEditingController PasswordController = TextEditingController();
     var formkey = GlobalKey<FormState>();
     return BlocProvider(
-      create: ((context) => SochialLoginCubit()),
-      child: BlocConsumer<SochialLoginCubit, SochialLoginState>(
+      create: ((context) => socialLoginCubit()),
+      child: BlocConsumer<socialLoginCubit, socialLoginState>(
         listener: (context, state) {
-          if (state is SochialLoginSuccessState) {
+          if (state is socialLoginSuccessState) {
+            CacheHelper.saveData(key: 'uId', value: state.uId).then((value) {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => HomeLayout()));
+            });
+
             toastStyle(
                 context: context,
                 massege: "تم تسجيل الدخول بنجاح",
-                colortoast: Colors.green);
+                colortoast: color.colorsgreen);
           }
-          if (state is SochialLoginErorrState) {
+          if (state is socialLoginErorrState) {
             toastStyle(
-                context: context, massege: state.Erorr, colortoast: Colors.red);
+                context: context,
+                massege: state.Erorr,
+                colortoast: color.colorsred);
           }
         },
         builder: (context, state) {
-          return Scaffold(
-            drawer: Drawer(
-              child: Row(
-                children: [
-                  ElevatedButton(
-                      onPressed: () {
-                        SettingCubit.get(context).toggleTheme();
-                      },
-                      child: Text("الوضع الليلي"))
-                ],
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: Scaffold(
+              drawer: Drawer(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 30, horizontal: 15),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          const Text("الوضع الليلي"),
+                          const SizedBox(
+                            width: 15,
+                          ),
+                          FlutterSwitch(
+                              value: SettingCubit.get(context).DarkMode,
+                              padding: 8.0,
+                              showOnOff: true,
+                              onToggle: (value) {
+                                SettingCubit.get(context).toggleTheme();
+                              })
+                        ],
+                      )
+                    ],
+                  ),
+                ),
               ),
-            ),
-            appBar: AppBar(
-              actions: [],
-            ),
-            body: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Container(
-                margin: EdgeInsetsDirectional.all(20),
+              appBar: AppBar(
+                actions: [],
+              ),
+              body: Container(
+                margin: const EdgeInsetsDirectional.all(20),
                 child: SingleChildScrollView(
                   child: Form(
                     key: formkey,
@@ -60,13 +86,14 @@ class LoginScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Image.asset("lib/assets/Image/LoginScreen/login.png"),
-                        Text(
+                        const Text(
                           "تسجيل الدخول",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20),
                         ),
                         textFormFiledDefult(
-                          paddingcontainer: EdgeInsets.symmetric(vertical: 10),
+                          paddingcontainer:
+                              const EdgeInsets.symmetric(vertical: 10),
                           ispassword: false,
                           validate: (value) {
                             if (value!.isEmpty) {
@@ -76,14 +103,16 @@ class LoginScreen extends StatelessWidget {
                           },
                           FormFielController: EmailController,
                           HintText: "البريد الالكتروني",
-                          prefixicon: Icon(Icons.alternate_email_outlined),
+                          prefixicon:
+                              const Icon(Icons.alternate_email_outlined),
                           typekeyboard: TextInputType.emailAddress,
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
                         textFormFiledDefult(
-                            ispassword: SochialLoginCubit.get(context)
+                            ispassword: socialLoginCubit
+                                .get(context)
                                 .PasswordVisibility,
                             validate: (value) {
                               if (value!.isEmpty) {
@@ -92,33 +121,33 @@ class LoginScreen extends StatelessWidget {
                               return null;
                             },
                             FormFielController: PasswordController,
-                            prefixicon: Icon(Icons.lock_outline_rounded),
+                            prefixicon: const Icon(Icons.lock_outline_rounded),
                             HintText: "كلمة المرور",
                             suffixIcon: MaterialButton(
                               minWidth: 0,
                               height: 0,
                               focusElevation: 10,
                               onPressed: () {
-                                SochialLoginCubit.get(context).ispassword();
+                                socialLoginCubit.get(context).ispassword();
                               },
                               child: Icon(
-                                SochialLoginCubit.get(context).suffixicon,
+                                socialLoginCubit.get(context).suffixicon,
                               ),
                             ),
                             typekeyboard: TextInputType.text),
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
                         TextButton(
                           onPressed: () {
                             //    BtnPushClick(context, ForgotPasswortScreen());
                           },
-                          child: Text(
+                          child: const Text(
                             "نسيت كلمة المرور?",
                             style: TextStyle(),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
                         ConditionalBuilder(
@@ -126,36 +155,36 @@ class LoginScreen extends StatelessWidget {
                               textbtn: "دخول",
                               clickbtn: () async {
                                 if (formkey.currentState!.validate()) {
-                                  SochialLoginCubit.get(context).userLogin(
-                                    email: EmailController.text,
-                                    password: PasswordController.text,
-                                  );
+                                  socialLoginCubit.get(context).userLogin(
+                                        email: EmailController.text,
+                                        password: PasswordController.text,
+                                      );
                                 }
                               }),
                           fallback: ((context) =>
-                              Center(child: CircularProgressIndicator())),
-                          condition: state is! SochialLoginLoadingState,
+                              const Center(child: CircularProgressIndicator())),
+                          condition: state is! socialLoginLoadingState,
                         ),
                         Container(
-                            margin: EdgeInsets.symmetric(vertical: 15),
-                            child: Center(
+                            margin: const EdgeInsets.symmetric(vertical: 15),
+                            child: const Center(
                               child: Text(
                                 "او ",
                                 textAlign: TextAlign.center,
                               ),
                             )),
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("مستخدم جديد ؟"),
+                            const Text("مستخدم جديد ؟"),
                             TextButton(
                                 onPressed: () {
                                   navigtorPushClick(context, Register());
                                 },
-                                child: Text("أنشاء حساب"))
+                                child: const Text("أنشاء حساب"))
                           ],
                         ),
                       ],

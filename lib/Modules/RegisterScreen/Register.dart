@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../Components/components.dart';
+import '../../layout/Home_Layout/home.dart';
 import '../../shared/Cubit/RegisterCubit/cubit.dart';
 import '../../shared/Cubit/RegisterCubit/states.dart';
 
@@ -17,9 +18,13 @@ class Register extends StatelessWidget {
   Widget build(BuildContext context) {
     var formkey = GlobalKey<FormState>();
     return BlocProvider(
-      create: (context) => SochialRegisterCubit(),
-      child: BlocConsumer<SochialRegisterCubit, SochialRegisterState>(
-        listener: (context, state) {},
+      create: (context) => socialRegisterCubit(),
+      child: BlocConsumer<socialRegisterCubit, socialRegisterState>(
+        listener: (context, state) {
+          if (state is socialCreateUserSuccessState) {
+            navigtorPushClick(context, HomeLayout());
+          }
+        },
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(),
@@ -93,7 +98,8 @@ class Register extends StatelessWidget {
                               return null;
                             },
                             FormFielController: PasswordController,
-                            ispassword: SochialRegisterCubit.get(context)
+                            ispassword: socialRegisterCubit
+                                .get(context)
                                 .PasswordVisibility,
                             prefixicon: Icon(Icons.lock_outline_rounded),
                             suffixIcon: MaterialButton(
@@ -101,10 +107,10 @@ class Register extends StatelessWidget {
                               height: 0,
                               focusElevation: 10,
                               onPressed: () {
-                                SochialRegisterCubit.get(context).ispassword();
+                                socialRegisterCubit.get(context).ispassword();
                               },
                               child: Icon(
-                                  SochialRegisterCubit.get(context).suffixicon),
+                                  socialRegisterCubit.get(context).suffixicon),
                             ),
                             HintText: "كلمة المرور"),
                         SizedBox(
@@ -131,17 +137,16 @@ class Register extends StatelessWidget {
                               textbtn: "تسجيل",
                               clickbtn: () async {
                                 if (formkey.currentState!.validate()) {
-                                  SochialRegisterCubit.get(context)
-                                      .userRegister(
-                                          name: NameController.text,
-                                          email: EmailController.text,
-                                          password: PasswordController.text,
-                                          phone: PhoneController.text);
+                                  socialRegisterCubit.get(context).userRegister(
+                                      name: NameController.text,
+                                      email: EmailController.text,
+                                      password: PasswordController.text,
+                                      phone: PhoneController.text);
                                 }
                               }),
                           fallback: ((context) =>
                               Center(child: CircularProgressIndicator())),
-                          condition: state is! SochialRegisterLoadingState,
+                          condition: state is! socialRegisterLoadingState,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

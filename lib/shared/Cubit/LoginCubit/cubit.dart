@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_app_sochial/shared/Cubit/LoginCubit/states.dart';
 
-class SochialLoginCubit extends Cubit<SochialLoginState> {
-  SochialLoginCubit() : super(SochialLoginInitialState());
-  static SochialLoginCubit get(context) => BlocProvider.of(context);
+class socialLoginCubit extends Cubit<socialLoginState> {
+  socialLoginCubit() : super(socialLoginInitialState());
+  static socialLoginCubit get(context) => BlocProvider.of(context);
 
   bool? isConnected;
 
@@ -15,29 +15,25 @@ class SochialLoginCubit extends Cubit<SochialLoginState> {
     required String email,
     required String password,
   }) async {
-    emit(SochialLoginLoadingState());
+    emit(socialLoginLoadingState());
     FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password)
         .then((value) {
-      emit(SochialLoginSuccessState());
+      emit(socialLoginSuccessState(value.user!.uid));
     }).catchError((onError) {
-      emit(SochialLoginErorrState(onError.toString()));
+      emit(socialLoginErorrState(onError.toString()));
     });
   }
 
   bool PasswordVisibility = true;
-  IconData suffixicon = Icons.visibility;
-  Color? colorbisibility = Colors.white;
+  IconData suffixicon = Icons.visibility_off_rounded;
   void ispassword() {
     PasswordVisibility = !PasswordVisibility;
     if (PasswordVisibility == true) {
       suffixicon = Icons.visibility_off_rounded;
-      colorbisibility = Colors.white;
     } else {
       suffixicon = Icons.visibility;
-      colorbisibility = Colors.white;
     }
-
-    emit(SochialLoginChangeOserctorAndIconState());
+    emit(socialLoginChangeOserctorAndIconState());
   }
 }
