@@ -37,18 +37,24 @@ class HomeLayout extends StatelessWidget {
                     var cubit = socialCubit.get(context);
                     return Scaffold(
                       appBar: AppBar(
-                        title: Text(
-                          "مرحباً ${cubit.model!.name}",
-                          style: TextStyle(
-                            fontSize: 15,
-                          ),
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
+                          title: Text("${cubit.title[cubit.currentIndex]}"),
+                          actions: [
+                            IconButton(
+                                onPressed: () {}, icon: Icon(Icons.search))
+                          ]),
                       drawer: Drawer(
                         child: Column(
                           children: [
-                            AppBar(automaticallyImplyLeading: false),
+                            AppBar(
+                              automaticallyImplyLeading: false,
+                              title: Text(
+                                "مرحباً ${cubit.model!.name}",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
                             DarkMode()
                           ],
                         ),

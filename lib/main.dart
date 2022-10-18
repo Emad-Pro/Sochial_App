@@ -40,29 +40,31 @@ class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) =>
-                SettingCubit()..toggleTheme(DarkShared: DarkMode),
-          ),
-          BlocProvider(create: (context) => socialCubit()..getUserData())
-        ],
-        child: BlocBuilder<SettingCubit, SettingStates>(
-            builder: (context, state) => MaterialApp(
-                themeMode: SettingCubit.get(context).DarkMode
-                    ? ThemeMode.dark
-                    : ThemeMode.light,
-                theme: ThemeData.light(
-                  useMaterial3: true,
-                ).copyWith(
-                    textTheme:
-                        ThemeData.light().textTheme.apply(fontFamily: "Cairo")),
-                darkTheme: ThemeData.dark(
-                  useMaterial3: true,
-                ).copyWith(
-                    textTheme:
-                        ThemeData.dark().textTheme.apply(fontFamily: "Cairo")),
-                home: startWidget)));
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              SettingCubit()..toggleTheme(DarkShared: DarkMode),
+        ),
+        BlocProvider(create: (context) => socialCubit()..getUserData())
+      ],
+      child: BlocBuilder<SettingCubit, SettingStates>(
+        builder: (context, state) => MaterialApp(
+          themeMode: SettingCubit.get(context).DarkMode
+              ? ThemeMode.dark
+              : ThemeMode.light,
+          theme: ThemeData.light(
+            useMaterial3: true,
+          ).copyWith(
+              textTheme:
+                  ThemeData.light().textTheme.apply(fontFamily: "Cairo")),
+          darkTheme: ThemeData.dark(
+            useMaterial3: true,
+          ).copyWith(
+              textTheme: ThemeData.dark().textTheme.apply(fontFamily: "Cairo")),
+          home: startWidget,
+        ),
+      ),
+    );
   }
 }
 

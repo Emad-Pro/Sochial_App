@@ -32,8 +32,8 @@ class socialCubit extends Cubit<socialStates> {
   List<Widget> homeScreen = [
     Feeds(),
     Notifications(),
-    Chats(),
   ];
+  List<String?> title = ["الرئيسية", "الاشعارات"];
   void changeBottomNav(int? index) {
     currentIndex = index!;
     emit(socialChangebuttomNavState());
