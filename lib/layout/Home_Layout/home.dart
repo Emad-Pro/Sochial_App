@@ -11,6 +11,7 @@ import 'package:my_app_sochial/shared/Cubit/AppCubit/state.dart';
 import 'package:my_app_sochial/shared/locale/color/color.dart';
 
 import '../../Components/components.dart';
+import '../Profile/editProfile/edit.dart';
 
 class HomeLayout extends StatelessWidget {
   HomeLayout({Key? key}) : super(key: key);
@@ -43,10 +44,16 @@ class HomeLayout extends StatelessWidget {
                                 onPressed: () {}, icon: Icon(Icons.search))
                           ]),
                       drawer: Drawer(
+                        width: double.infinity,
                         child: Column(
                           children: [
                             AppBar(
-                              automaticallyImplyLeading: false,
+                              leading: IconButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  icon: Icon(Icons.arrow_back)),
+                              automaticallyImplyLeading: true,
                               title: Text(
                                 "مرحباً ${cubit.model!.name}",
                                 style: TextStyle(
@@ -55,7 +62,29 @@ class HomeLayout extends StatelessWidget {
                                 textAlign: TextAlign.end,
                               ),
                             ),
-                            DarkMode()
+                            BlocConsumer<socialCubit, socialStates>(
+                                listener: (context, state) {},
+                                builder: (context, state) {
+                                  return Column(
+                                    children: [
+                                      BuildProfile(context, model: cubit.model),
+                                      BuildFollowing(context),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            navigtorPushClick(
+                                                context, editProfile());
+                                          },
+                                          child: Text("تعديل الملف الشخصي"),
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                }),
+                            DarkMode(),
                           ],
                         ),
                       ),
@@ -117,6 +146,22 @@ class HomeLayout extends StatelessWidget {
                               icon: Icon(Icons.notifications_none),
                               label: "الاشعارات"),
                         ],
+                      ),
+                      floatingActionButton: FloatingActionButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100)),
+                        onPressed: () {
+                          showModalBottomSheet(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              context: context,
+                              builder: ((context) => Container(
+                                    child: SizedBox(
+                                      height: 200,
+                                    ),
+                                  )));
+                        },
+                        child: Icon(Icons.post_add),
                       ),
                     );
                   })));

@@ -55,12 +55,23 @@ class Main extends StatelessWidget {
           theme: ThemeData.light(
             useMaterial3: true,
           ).copyWith(
-              textTheme:
-                  ThemeData.light().textTheme.apply(fontFamily: "Cairo")),
+            floatingActionButtonTheme: const FloatingActionButtonThemeData(
+              backgroundColor: Colors.blue,
+            ),
+            textTheme: ThemeData.light().textTheme.apply(
+                  fontFamily: "Cairo",
+                ),
+          ),
           darkTheme: ThemeData.dark(
             useMaterial3: true,
           ).copyWith(
-              textTheme: ThemeData.dark().textTheme.apply(fontFamily: "Cairo")),
+            floatingActionButtonTheme: const FloatingActionButtonThemeData(
+              backgroundColor: Colors.teal,
+            ),
+            textTheme: ThemeData.dark().textTheme.apply(
+                  fontFamily: "Cairo",
+                ),
+          ),
           home: startWidget,
         ),
       ),
