@@ -7,15 +7,22 @@ class socialUsersModel {
   String? image;
   String? coverimage;
   String? bio;
-  socialUsersModel(
-      {this.name,
-      this.email,
-      this.phone,
-      this.uId,
-      this.isEmailVerified,
-      this.image,
-      this.coverimage,
-      this.bio});
+  String? relationship;
+  String? education;
+  String? date;
+  socialUsersModel({
+    this.name,
+    this.email,
+    this.phone,
+    this.uId,
+    this.isEmailVerified,
+    this.image,
+    this.coverimage,
+    this.bio,
+    this.relationship,
+    this.education,
+    this.date,
+  });
   socialUsersModel.fromJson(Map<String?, dynamic> json) {
     name = json['name'];
     email = json['email'];
@@ -25,6 +32,9 @@ class socialUsersModel {
     image = json['image'];
     coverimage = json['coverimage'];
     bio = json['bio'];
+    relationship = json['relationship'];
+    education = json['education'];
+    date = json['date'];
   }
   Map<String, dynamic> toMap() {
     return {
@@ -35,7 +45,10 @@ class socialUsersModel {
       'isEmailVerified': isEmailVerified,
       'image': image,
       'coverimage': coverimage,
-      'bio': bio
+      'bio': bio,
+      'education': education,
+      'relationship': relationship,
+      'date': date,
     };
   }
 }

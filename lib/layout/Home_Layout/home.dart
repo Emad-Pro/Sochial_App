@@ -18,6 +18,7 @@ class HomeLayout extends StatelessWidget {
   colors color = colors();
   @override
   Widget build(BuildContext context) {
+    TabController tabController;
     return BlocConsumer<socialCubit, socialStates>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -67,7 +68,10 @@ class HomeLayout extends StatelessWidget {
                                 builder: (context, state) {
                                   return Column(
                                     children: [
-                                      BuildProfile(context, model: cubit.model),
+                                      BuildProfile(
+                                        context,
+                                        model: cubit,
+                                      ),
                                       BuildFollowing(context),
                                       Container(
                                         padding: EdgeInsets.symmetric(

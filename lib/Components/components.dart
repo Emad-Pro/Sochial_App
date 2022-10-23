@@ -1,14 +1,17 @@
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:my_app_sochial/shared/Cubit/AppCubit/cubit.dart';
+import 'package:my_app_sochial/shared/Cubit/AppCubit/state.dart';
 import 'package:my_app_sochial/shared/Cubit/SettingCubit/state.dart';
 
 import '../layout/Profile/editProfile/edit.dart';
 import '../shared/Cubit/SettingCubit/cubit.dart';
 
 Widget textFormFiledDefult({
-  required Icon prefixicon,
+  Icon? prefixicon,
   required String HintText,
   MaterialButton? suffixIcon,
   TextInputType? typekeyboard,
@@ -18,19 +21,16 @@ Widget textFormFiledDefult({
   required bool ispassword,
   bool? readonly,
 }) =>
-    Container(
-      padding: paddingcontainer,
-      child: TextFormField(
-        readOnly: readonly ?? false,
-        keyboardType: typekeyboard,
-        controller: FormFielController,
-        validator: validate,
-        obscureText: ispassword,
-        decoration: InputDecoration(
-          prefixIcon: prefixicon,
-          hintText: HintText,
-          suffixIcon: suffixIcon,
-        ),
+    TextFormField(
+      readOnly: readonly ?? false,
+      keyboardType: typekeyboard,
+      controller: FormFielController,
+      validator: validate,
+      obscureText: ispassword,
+      decoration: InputDecoration(
+        prefixIcon: prefixicon,
+        hintText: HintText,
+        suffixIcon: suffixIcon,
       ),
     );
 Widget materialButtonClick({
@@ -339,7 +339,7 @@ Widget BuildPostItem(context, {model}) =>
         );
       },
     );
-Widget BuildProfile(context, {model}) => Card(
+Widget BuildProfile(context, {model, profilemodel}) => Card(
       color: Theme.of(context).scaffoldBackgroundColor,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       elevation: 0,
@@ -352,35 +352,185 @@ Widget BuildProfile(context, {model}) => Card(
             child: Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Image(
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: 180,
-                    image: NetworkImage("${model.coverimage}"),
-                  ),
+                Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Image(
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 180,
+                        image: model.coverImage == null
+                            ? NetworkImage("${model.model.coverimage}")
+                            : FileImage(model.coverImage) as ImageProvider,
+                      ),
+                    ),
+                    CircleAvatar(
+                      radius: 20,
+                      child: IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                BlocConsumer<socialCubit, socialStates>(
+                              listener: (context, state) {},
+                              builder: (context, state) {
+                                return AlertDialog(
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text("تحميل صورة الغلاف"),
+                                      ConditionalBuilder(
+                                        condition: model.coverImage != null,
+                                        builder: (context) => Image(
+                                          image: FileImage(model.coverImage),
+                                        ),
+                                        fallback: (context) =>
+                                            Text("اختر الصورة"),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          socialCubit
+                                              .get(context)
+                                              .getCoverImage();
+                                        },
+                                        icon: Icon(Icons.camera),
+                                      ),
+                                      Row(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {},
+                                            child: Text("رفع"),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              model.coverImage = null;
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text("الغاء"),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                          //  model.getCoverImage();
+                        },
+                        icon: Icon(
+                          Icons.photo_camera,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 CircleAvatar(
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   radius: 45,
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundImage: NetworkImage('${model.image}'),
+                  child: Stack(
+                    alignment: AlignmentDirectional.bottomEnd,
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: NetworkImage(
+                          '${model.model.image}',
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                BlocConsumer<socialCubit, socialStates>(
+                              listener: (context, state) {},
+                              builder: (context, state) {
+                                return AlertDialog(
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text("تحميل الصورة"),
+                                      ConditionalBuilder(
+                                        condition: model.profileimage != null,
+                                        builder: (context) => Image(
+                                          image: FileImage(model.profileimage),
+                                        ),
+                                        fallback: (context) =>
+                                            Text("اختر الصورة"),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          socialCubit
+                                              .get(context)
+                                              .getProfileImage();
+                                        },
+                                        icon: Icon(Icons.camera),
+                                      ),
+                                      Row(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {},
+                                            child: Text("رفع"),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              model.profileimage = null;
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text("الغاء"),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.photo_camera,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
           Container(
-            child: Text("${model.name}"),
+            child: Text("${model.model.name}"),
           ),
           Container(
             child: Text(
-              "${model.bio}",
+              "${model.model.bio}",
               style: Theme.of(context).textTheme.caption,
             ),
           ),
+          Container(
+            width: double.infinity,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("  التعليم ${model.model.education}"),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text("  تاريخ الميلاد ${model.model.date}"),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text("  الحالة الاجتماعية ${model.model.relationship}"),
+                  ],
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -449,3 +599,41 @@ Widget BuildFollowing(context) => Container(
       ),
     );
 /****************************Home Layout */
+
+/**********************************ProfileEdit */
+Widget editProfileForm(
+    {String? name,
+    TextEditingController? controller,
+    String? Function(String?)? validator,
+    int? length,
+    Widget? suffix,
+    Widget? suffixicon,
+    VoidCallback? onTap}) {
+  return Card(
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+            padding: EdgeInsetsDirectional.only(start: 10), child: Text(name!)),
+        SizedBox(
+          width: 20,
+        ),
+        Expanded(
+          child: TextFormField(
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                suffix: suffix,
+                suffixIcon: suffixicon),
+            controller: controller,
+            validator: validator,
+            maxLength: length,
+            maxLines: 1,
+            onTap: onTap,
+          ),
+        )
+      ],
+    ),
+  );
+}
+/**********************************ProfileEdit */
