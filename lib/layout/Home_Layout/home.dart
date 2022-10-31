@@ -19,156 +19,152 @@ class HomeLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TabController tabController;
-    return BlocConsumer<socialCubit, socialStates>(
-        listener: (context, state) {},
-        builder: (context, state) {
-          return Directionality(
-              textDirection: TextDirection.rtl,
-              child: ConditionalBuilder(
-                  condition: socialCubit.get(context).model != null,
-                  fallback: (context) => Scaffold(
-                        appBar: AppBar(),
-                        body: Center(
-                          child: LoadingAnimationWidget.prograssiveDots(
-                            color: const Color(0xFF1A1A3F),
-                            size: 50,
+    return BlocConsumer<socialCubit, socialStates>(listener: (context, state) {
+      if (state is socialUploadProfileCoverSuccessState ||
+          state is socialUploadProfileImageSuccessState) {
+        socialCubit.get(context).profileimage = null;
+        socialCubit.get(context).coverImage = null;
+        Navigator.of(context).pop();
+        toastStyle(context: context, massege: "تم تحديث الصورة بنجاح", colortoast: Colors.green);
+      }
+    }, builder: (context, state) {
+      return Directionality(
+          textDirection: TextDirection.rtl,
+          child: ConditionalBuilder(
+              condition: socialCubit.get(context).model != null,
+              fallback: (context) => Scaffold(
+                    appBar: AppBar(),
+                    body: Center(
+                      child: LoadingAnimationWidget.prograssiveDots(
+                        color: const Color(0xFF1A1A3F),
+                        size: 50,
+                      ),
+                    ),
+                  ),
+              builder: ((context) {
+                var cubit = socialCubit.get(context);
+                return Scaffold(
+                  appBar: AppBar(
+                      title: Text("${cubit.title[cubit.currentIndex]}"),
+                      actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))]),
+                  drawer: Drawer(
+                    width: double.infinity,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          AppBar(
+                            leading: IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: Icon(Icons.arrow_back)),
+                            automaticallyImplyLeading: true,
+                            title: Text(
+                              "مرحباً ${cubit.model!.name}",
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                              textAlign: TextAlign.end,
+                            ),
+                          ),
+                          BlocConsumer<socialCubit, socialStates>(
+                              listener: (context, state) {},
+                              builder: (context, state) {
+                                return Column(
+                                  children: [
+                                    buildProfile(
+                                      context,
+                                      model: cubit,
+                                    ),
+                                    buildFollowing(context),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 10),
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          navigtorPushClick(context, editProfile());
+                                        },
+                                        child: Text("تعديل الملف الشخصي"),
+                                      ),
+                                    )
+                                  ],
+                                );
+                              }),
+                          darkMode(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  body: Column(
+                    children: [
+                      if (!FirebaseAuth.instance.currentUser!.emailVerified)
+                        Container(
+                          color: color.colorscyanop,
+                          padding: EdgeInsets.symmetric(horizontal: 15),
+                          width: double.infinity,
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outlined),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text("الحساب يحتاج الي تفعيل"),
+                              Spacer(),
+                              TextButton(
+                                style: ButtonStyle(
+                                    foregroundColor: MaterialStateProperty.all(color.colorsred)),
+                                onPressed: () {
+                                  FirebaseAuth.instance.currentUser!
+                                      .sendEmailVerification()
+                                      .then((value) {
+                                    toastStyle(
+                                        context: context,
+                                        massege: 'تم ارسال كود التفعيل بنجاح',
+                                        colortoast: color.colorsgreen);
+                                  }).catchError((onError) {
+                                    print(onError.toString());
+                                  });
+                                },
+                                child: Text("تفعيل الان"),
+                              )
+                            ],
                           ),
                         ),
+                      SizedBox(
+                        height: 10,
                       ),
-                  builder: ((context) {
-                    var cubit = socialCubit.get(context);
-                    return Scaffold(
-                      appBar: AppBar(
-                          title: Text("${cubit.title[cubit.currentIndex]}"),
-                          actions: [
-                            IconButton(
-                                onPressed: () {}, icon: Icon(Icons.search))
-                          ]),
-                      drawer: Drawer(
-                        width: double.infinity,
-                        child: Column(
-                          children: [
-                            AppBar(
-                              leading: IconButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  icon: Icon(Icons.arrow_back)),
-                              automaticallyImplyLeading: true,
-                              title: Text(
-                                "مرحباً ${cubit.model!.name}",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                ),
-                                textAlign: TextAlign.end,
-                              ),
-                            ),
-                            BlocConsumer<socialCubit, socialStates>(
-                                listener: (context, state) {},
-                                builder: (context, state) {
-                                  return Column(
-                                    children: [
-                                      BuildProfile(
-                                        context,
-                                        model: cubit,
-                                      ),
-                                      BuildFollowing(context),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            navigtorPushClick(
-                                                context, editProfile());
-                                          },
-                                          child: Text("تعديل الملف الشخصي"),
-                                        ),
-                                      )
-                                    ],
-                                  );
-                                }),
-                            DarkMode(),
-                          ],
-                        ),
-                      ),
-                      body: Column(
-                        children: [
-                          if (!FirebaseAuth.instance.currentUser!.emailVerified)
-                            Container(
-                              color: color.colorscyanop,
-                              padding: EdgeInsets.symmetric(horizontal: 15),
-                              width: double.infinity,
-                              child: Row(
-                                children: [
-                                  Icon(Icons.info_outlined),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text("الحساب يحتاج الي تفعيل"),
-                                  Spacer(),
-                                  TextButton(
-                                    style: ButtonStyle(
-                                        foregroundColor:
-                                            MaterialStateProperty.all(
-                                                color.colorsred)),
-                                    onPressed: () {
-                                      FirebaseAuth.instance.currentUser!
-                                          .sendEmailVerification()
-                                          .then((value) {
-                                        toastStyle(
-                                            context: context,
-                                            massege:
-                                                'تم ارسال كود التفعيل بنجاح',
-                                            colortoast: color.colorsgreen);
-                                      }).catchError((onError) {
-                                        print(onError.toString());
-                                      });
-                                    },
-                                    child: Text("تفعيل الان"),
-                                  )
-                                ],
-                              ),
-                            ),
-                          Expanded(
-                              child: Container(
-                                  child: cubit.homeScreen[cubit.currentIndex]))
-                        ],
-                      ),
-                      bottomNavigationBar: BottomNavigationBar(
-                        onTap: (index) {
-                          cubit.changeBottomNav(index);
-                        },
-                        currentIndex: cubit.currentIndex,
-                        items: [
-                          BottomNavigationBarItem(
-                              icon: Icon(
-                                Icons.home,
-                              ),
-                              label: "الرئيسية"),
-                          BottomNavigationBarItem(
-                              icon: Icon(Icons.notifications_none),
-                              label: "الاشعارات"),
-                        ],
-                      ),
-                      floatingActionButton: FloatingActionButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(100)),
-                        onPressed: () {
-                          showModalBottomSheet(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              context: context,
-                              builder: ((context) => Container(
-                                    child: SizedBox(
-                                      height: 200,
-                                    ),
-                                  )));
-                        },
-                        child: Icon(Icons.post_add),
-                      ),
-                    );
-                  })));
-        });
+                      Expanded(child: Container(child: cubit.homeScreen[cubit.currentIndex]))
+                    ],
+                  ),
+                  bottomNavigationBar: BottomNavigationBar(
+                    onTap: (index) {
+                      cubit.changeBottomNav(index);
+                    },
+                    currentIndex: cubit.currentIndex,
+                    items: [
+                      BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.home,
+                          ),
+                          label: "الرئيسية"),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.notifications_none), label: "الاشعارات"),
+                    ],
+                  ),
+                  floatingActionButton: FloatingActionButton(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                    onPressed: () {
+                      showModalBottomSheet(
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          context: context,
+                          builder: ((context) => Container(
+                              child: createNewPost(context, model: socialCubit.get(context)))));
+                    },
+                    child: Icon(Icons.post_add),
+                  ),
+                );
+              })));
+    });
   }
 }

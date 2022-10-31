@@ -24,11 +24,7 @@ class socialRegisterCubit extends Cubit<socialRegisterState> {
         .then((value) {
       print(value.user!.email.toString());
       print(value.user!.uid.toString());
-      userCreate(
-          email: email,
-          name: name,
-          phone: phone,
-          uId: value.user!.uid.toString());
+      userCreate(email: email, name: name, phone: phone, uId: value.user!.uid.toString());
     }).catchError((onError) {
       emit(socialRegisterErorrState(onError));
       print(onError.toString());
@@ -53,15 +49,11 @@ class socialRegisterCubit extends Cubit<socialRegisterState> {
       image:
           'https://img.freepik.com/free-photo/studio-portrait-bearded-man-posing-beige-background-looking-into-camera-with-broad-smile-his-face_295783-16582.jpg?w=740&t=st=1666104228~exp=1666104828~hmac=a3d773d1949d9798115cf824499df4eba19b1915539ed797673cdd7adfa51775',
       bio: 'write Your Bio ...',
-      education: education,
-      relationship: email,
-      date: date!,
+      education: '',
+      relationship: '',
+      date: DateTime.now().toString(),
     );
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(uId)
-        .set(model.toMap())
-        .then((value) {
+    FirebaseFirestore.instance.collection('users').doc(uId).set(model.toMap()).then((value) {
       emit(socialCreateUserSuccessState());
     }).catchError((onError) {
       emit(socialCreateUserErorrState(onError));
