@@ -16,42 +16,41 @@ import 'Modules/LoginScreen/Login.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = MyHttpOverrides();
   await Firebase.initializeApp();
-  Bloc.observer = MyBlocObserver();
-  HttpOverrides.global = new MyHttpOverrides();
   await CacheHelper.init();
-  bool? DarkMode = CacheHelper.GetSaveData(key: 'DarkMode');
+  bool? darkMode = CacheHelper.GetSaveData(key: 'DarkMode');
   uId = CacheHelper.GetSaveData(key: 'uId');
-  late Widget? widget;
-
+  Widget? widget;
+  Bloc.observer = MyBlocObserver();
   if (uId != null) {
     widget = HomeLayout();
   } else {
     widget = LoginScreen();
   }
-  runApp(Main(DarkMode ?? false, widget));
+  runApp(Main(darkMode ?? false, widget));
 }
 
 class Main extends StatelessWidget {
   final Widget startWidget;
-  final bool DarkMode;
-  Main(this.DarkMode, this.startWidget);
+  final bool darkMode;
+  const Main(this.darkMode, this.startWidget, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) =>
-              SettingCubit()..toggleTheme(DarkShared: DarkMode),
+          create: (context) => SettingCubit()..toggleTheme(DarkShared: darkMode),
         ),
-        BlocProvider(create: (context) => socialCubit()..getUserData())
+        BlocProvider(
+            create: (context) => socialCubit()
+              ..getUserData()
+              ..getPostData())
       ],
       child: BlocBuilder<SettingCubit, SettingStates>(
         builder: (context, state) => MaterialApp(
-          themeMode: SettingCubit.get(context).DarkMode
-              ? ThemeMode.dark
-              : ThemeMode.light,
+          themeMode: SettingCubit.get(context).DarkMode ? ThemeMode.dark : ThemeMode.light,
           theme: ThemeData.light(
             useMaterial3: true,
           ).copyWith(
@@ -73,6 +72,7 @@ class Main extends StatelessWidget {
                 ),
           ),
           home: startWidget,
+          debugShowCheckedModeBanner: false,
         ),
       ),
     );
@@ -83,7 +83,77 @@ class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }
+
+/*import 'package:flutter/material.dart';
+
+void main() {
+  runApp(Main());
+}
+
+class Main extends StatefulWidget {
+  const Main({Key? key}) : super(key: key);
+
+  @override
+  _MainState createState() => _MainState();
+}
+
+class _MainState extends State<Main> with TickerProviderStateMixin {
+  TabController? mycontroller;
+  @override
+  void initState() {
+    mycontroller = TabController(
+      length: 5,
+      vsync: this,
+    );
+    // TODO: implement initState
+    super.initState();
+  }
+
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: Scaffold(
+            appBar: AppBar(
+                title: Text("asd"),
+                bottom: TabBar(
+                  controller: mycontroller,
+                  isScrollable: true,
+                  tabs: [
+                    Tab(
+                      icon: Icon(Icons.abc),
+                    ),
+                    Tab(
+                      icon: Icon(Icons.abc),
+                    ),
+                    Tab(
+                      icon: Icon(Icons.abc),
+                    ),
+                    Tab(
+                      icon: Icon(Icons.abc),
+                    ),
+                    Tab(
+                      icon: Icon(Icons.abc),
+                    ),
+                  ],
+                )),
+            body: TabBarView(controller: mycontroller, children: [
+              Container(
+                child: Text("data1"),
+              ),
+              Container(
+                child: Text("data2"),
+              ),
+              Container(
+                child: Text("data3"),
+              ),
+              Container(
+                child: Text("data4"),
+              ),
+              Container(
+                child: Text("data4"),
+              ),
+            ])));
+  }
+}*/

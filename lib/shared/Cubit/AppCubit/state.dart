@@ -23,3 +23,89 @@ class socialProfileImagePickedErorrState extends socialStates {}
 class socialProfileCoverPickedSuccessState extends socialStates {}
 
 class socialProfileCoverPickedErorrState extends socialStates {}
+
+class socialUploadProfileImageLoadingState extends socialStates {}
+
+class socialUploadProfileImageSuccessState extends socialStates {}
+
+class socialUploadProfileImageErorrState extends socialStates {}
+
+class socialUploadProfileCoverLoadingState extends socialStates {}
+
+class socialUploadProfileCoverSuccessState extends socialStates {}
+
+class socialUpdateDataLoadingState extends socialStates {}
+
+class socialUpdateDataSuccessState extends socialStates {}
+
+class socialUploadProfileCoverErorrState extends socialStates {}
+
+class socialImagePostPickedSuccessState extends socialStates {}
+
+class socialImagePostPickedErorrState extends socialStates {}
+
+class socialCreatePostLoadingState extends socialStates {}
+
+class socialCreatePostSuccessState extends socialStates {}
+
+class socialCreatePostErorrState extends socialStates {}
+
+class socialDeletePostLoadingState extends socialStates {}
+
+class socialDeletePostSuccessState extends socialStates {}
+
+class socialDeletePostErorrState extends socialStates {}
+
+class socialUPdatePostLoadingState extends socialStates {}
+
+class socialUPdatePostSuccessState extends socialStates {}
+
+class socialUPdatePostErorrState extends socialStates {}
+
+class socialDeletePostImageState extends socialStates {}
+
+class socialGetPostsLoadingState extends socialStates {}
+
+class socialGetPostsSuccessState extends socialStates {}
+
+class socialGetPostsErorrState extends socialStates {
+  final String? Erorr;
+
+  socialGetPostsErorrState(this.Erorr);
+}
+
+class socialLikePostSuccessState extends socialStates {}
+
+class socialLikePostErorrState extends socialStates {
+  final String? Erorr;
+
+  socialLikePostErorrState(this.Erorr);
+}
+
+class socialCommentPostSuccessState extends socialStates {}
+
+class socialCommentPostErorrState extends socialStates {
+  final String? Erorr;
+
+  socialCommentPostErorrState(this.Erorr);
+}
+
+class socialGetCommentPostLoadingState extends socialStates {}
+
+class socialGetCommentPostSuccessState extends socialStates {}
+
+class socialGetCommentPostErorrState extends socialStates {
+  final String? Erorr;
+
+  socialGetCommentPostErorrState(this.Erorr);
+}
+
+class socialGetLikeCommentPostLoadingState extends socialStates {}
+
+class socialGetLikeCommentPostSuccessState extends socialStates {}
+
+class socialGetLikeCommentPostErorrState extends socialStates {
+  final String? Erorr;
+
+  socialGetLikeCommentPostErorrState(this.Erorr);
+}
