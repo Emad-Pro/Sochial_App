@@ -1,4 +1,5 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
@@ -26,21 +27,22 @@ class LoginScreen extends StatelessWidget {
       child: BlocConsumer<socialLoginCubit, socialLoginState>(
         listener: (context, state) {
           if (state is socialLoginSuccessState) {
-            CacheHelper.saveData(key: 'uId', value: state.uId).then((value) {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => HomeLayout()));
+            print(uId);
+            CacheHelper.saveData(
+                    key: 'uId', value: FirebaseAuth.instance.currentUser!.uid.toString())
+                .then((value) {
+              print(uId);
+              print("${FirebaseAuth.instance.currentUser!.uid.toString()}");
+              print("${FirebaseAuth.instance.currentUser!.uid}");
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => HomeLayout()),
+                  (Route<dynamic> route) => false);
             });
-
             toastStyle(
-                context: context,
-                massege: "تم تسجيل الدخول بنجاح",
-                colortoast: color.colorsgreen);
+                context: context, massege: "تم تسجيل الدخول بنجاح", colortoast: color.colorsgreen);
           }
           if (state is socialLoginErorrState) {
-            toastStyle(
-                context: context,
-                massege: state.Erorr,
-                colortoast: color.colorsred);
+            toastStyle(context: context, massege: state.Erorr, colortoast: color.colorsred);
           }
         },
         builder: (context, state) {
@@ -49,8 +51,7 @@ class LoginScreen extends StatelessWidget {
             child: Scaffold(
               drawer: Drawer(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 30, horizontal: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 15),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -88,12 +89,10 @@ class LoginScreen extends StatelessWidget {
                         Image.asset("lib/assets/Image/LoginScreen/login.png"),
                         const Text(
                           "تسجيل الدخول",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                         ),
                         textFormFiledDefult(
-                          paddingcontainer:
-                              const EdgeInsets.symmetric(vertical: 10),
+                          paddingcontainer: const EdgeInsets.symmetric(vertical: 10),
                           ispassword: false,
                           validate: (value) {
                             if (value!.isEmpty) {
@@ -103,17 +102,14 @@ class LoginScreen extends StatelessWidget {
                           },
                           FormFielController: EmailController,
                           HintText: "البريد الالكتروني",
-                          prefixicon:
-                              const Icon(Icons.alternate_email_outlined),
+                          prefixicon: const Icon(Icons.alternate_email_outlined),
                           typekeyboard: TextInputType.emailAddress,
                         ),
                         const SizedBox(
                           height: 15,
                         ),
                         textFormFiledDefult(
-                            ispassword: socialLoginCubit
-                                .get(context)
-                                .PasswordVisibility,
+                            ispassword: socialLoginCubit.get(context).PasswordVisibility,
                             validate: (value) {
                               if (value!.isEmpty) {
                                 return "أدخل كلمة المرور";
@@ -161,8 +157,7 @@ class LoginScreen extends StatelessWidget {
                                       );
                                 }
                               }),
-                          fallback: ((context) =>
-                              const Center(child: CircularProgressIndicator())),
+                          fallback: ((context) => const Center(child: CircularProgressIndicator())),
                           condition: state is! socialLoginLoadingState,
                         ),
                         Container(

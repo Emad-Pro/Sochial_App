@@ -1,12 +1,14 @@
-import 'package:circular_menu/circular_menu.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:my_app_sochial/Modules/LoginScreen/Login.dart';
 import 'package:my_app_sochial/models/postModel.dart';
 import 'package:my_app_sochial/shared/Cubit/AppCubit/cubit.dart';
 import 'package:my_app_sochial/shared/Cubit/AppCubit/state.dart';
@@ -16,8 +18,9 @@ import 'package:pull_down_button/pull_down_button.dart';
 
 import '../layout/Profile/editProfile/edit.dart';
 import '../shared/Cubit/SettingCubit/cubit.dart';
+import '../shared/locale/SharedPrefrences/CacheHelper.dart';
 
-String? uId;
+String? uId = FirebaseAuth.instance.currentUser!.uid;
 Widget textFormFiledDefult({
   Icon? prefixicon,
   required String HintText,
@@ -100,9 +103,19 @@ Widget darkMode() => BlocConsumer<SettingCubit, SettingStates>(
                       showOnOff: true,
                       onToggle: (value) {
                         SettingCubit.get(context).toggleTheme();
-                      })
+                      }),
                 ],
-              )
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    CacheHelper.clearData(key: "uId").then((value) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => LoginScreen()),
+                          (Route<dynamic> route) => false);
+                    });
+                    uId = '';
+                  },
+                  child: Text("تسجيل خروج"))
             ],
           ),
         );
@@ -110,351 +123,17 @@ Widget darkMode() => BlocConsumer<SettingCubit, SettingStates>(
     );
 
 /****************************Home Layout */
-Widget buildPostItem(
-  context,
-  index, {
-  required postModel model,
-}) =>
-    Directionality(
-      textDirection: TextDirection.rtl,
-      child: BlocConsumer<socialCubit, socialStates>(
-          listener: (context, state) {},
-          builder: (context, state) {
-            TextEditingController commentController = TextEditingController();
-            return Card(
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              elevation: 20,
-              margin: EdgeInsets.symmetric(
-                horizontal: 10,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(
-                  10.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 25,
-                          backgroundImage: NetworkImage(
-                            '${socialCubit.get(context).model!.image}',
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text("${model.name}"),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: Colors.blue,
-                                    size: 15,
-                                  )
-                                ],
-                              ),
-                              Text(
-                                "${model.date}",
-                                style: Theme.of(context).textTheme.caption,
-                              )
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        PullDownButton(
-                          itemBuilder: (context) => [
-                            PullDownMenuItem(
-                              title: 'تعديل',
-                              onTap: () {},
-                            ),
-                            const PullDownMenuDivider(),
-                            PullDownMenuItem(
-                              title: 'حذف',
-                              onTap: () {
-                                socialCubit.get(context).deletePost(model.postId);
-                              },
-                            ),
-                          ],
-                          position: PullDownMenuPosition.under,
-                          buttonBuilder: (context, showMenu) => CupertinoButton(
-                            onPressed: showMenu,
-                            padding: EdgeInsets.zero,
-                            child: const Icon(CupertinoIcons.ellipsis_circle),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Divider(),
-                    if (model.text != '')
-                      Text(
-                        "${model.text}",
-                        textDirection: TextDirection.rtl,
-                      ),
-                    /*Container(
-      
-                        width: double.infinity,
-      
-                        child: Wrap(
-      
-                          spacing: 1,
-      
-                          children: [
-      
-                            Container(
-      
-                              height: 25,
-      
-                              child: MaterialButton(
-      
-                                disabledElevation: 0,
-      
-                                elevation: 0,
-      
-                                onPressed: () {},
-      
-                                minWidth: 0,
-      
-                                height: 0,
-      
-                                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-      
-                                child: Text(
-      
-                                  "#Ea",
-      
-                                  style: TextStyle(color: Colors.blue),
-      
-                                ),
-      
-                              ),
-      
-                            ),
-      
-                          ],
-      
-                        ),
-      
-                      ),*/
-                    SizedBox(
-                      height: 10,
-                    ),
-                    if (model.postImage != '')
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Image(
-                          image: NetworkImage("${model.postImage}"),
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Divider(
-                      height: 0,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              socialCubit.get(context).likePost(model.postId, index);
-                              //socialCubit.get(context).likePost(model.postId);
-                              //   socialCubit.get(context).getLikePosts();
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    socialCubit.get(context).Likes[index][uId] == true
-                                        ? Icons.favorite_sharp
-                                        : Icons.favorite_border,
-                                    color: socialCubit.get(context).Likes[index][uId] == true
-                                        ? Colors.blue
-                                        : Colors.white,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    '',
-                                    style: Theme.of(context).textTheme.caption,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              socialCubit.get(context).getCommentPost(model.postId);
-                              socialCubit.get(context).getLikeCommentPost(model.postId);
-                              buildCommentVeiw(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.comment),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    "",
-                                    style: Theme.of(context).textTheme.caption,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {},
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.arrow_right),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    "0",
-                                    style: Theme.of(context).textTheme.caption,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(
-                      height: 0,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 15,
-                                backgroundImage: NetworkImage(
-                                  '${socialCubit.get(context).model!.image}',
-                                ),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: commentController,
-                                  decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: "كتابة تعليق",
-                                      hintStyle: TextStyle(fontSize: 12)),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return Directionality(
-                                    textDirection: TextDirection.rtl,
-                                    child: AlertDialog(
-                                      title: Text(
-                                        "كتابة تعليق",
-                                        style: TextStyle(fontSize: 15),
-                                      ),
-                                      content: Row(children: [
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              socialCubit.get(context).addCommentPost(model.postId,
-                                                  comment: commentController.text);
-                                            },
-                                            child: Text("ارسال")),
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text("الغاء")),
-                                      ]),
-                                    ),
-                                  );
-                                });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.commit_rounded),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  "ارسال",
-                                  style: Theme.of(context).textTheme.caption,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            );
-          }),
-    );
 
 Widget createNewPost(context, {model}) => Directionality(
       textDirection: TextDirection.rtl,
       child: BlocConsumer<socialCubit, socialStates>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is socialCreatePostSuccessState) {
+            toastStyle(
+                context: context, massege: "تم إضافة المنشور بنجاح", colortoast: Colors.green);
+            Navigator.pop(context);
+          }
+        },
         builder: (context, state) {
           TextEditingController postController = TextEditingController();
           return state is socialCreatePostLoadingState
@@ -896,100 +575,7 @@ Widget buildFollowing(context) => Container(
         ],
       ),
     );
-buildCommentVeiw(context) {
-  return showModalBottomSheet(
-    context: context,
-    builder: (context) => BlocConsumer<socialCubit, socialStates>(
-        listener: (context, state) {},
-        builder: (context, state) {
-          return state is socialGetCommentPostLoadingState
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Column(
-                  children: [
-                    Row(
-                      children: [
-                        Card(
-                            child: MaterialButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {},
-                          child: Row(children: [
-                            Text("${socialCubit.get(context).likeCount}"),
-                            Icon(Icons.favorite_border)
-                          ]),
-                        )),
-                        Spacer(),
-                        Card(
-                            child: MaterialButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {},
-                          child: Row(children: [
-                            Text("${socialCubit.get(context).commentCount}"),
-                            Icon(Icons.comment_outlined)
-                          ]),
-                        )),
-                      ],
-                    ),
-                    Expanded(
-                      child: ListView.separated(
-                          itemBuilder: (context, index) {
-                            return Directionality(
-                              textDirection: TextDirection.rtl,
-                              child: Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              CircleAvatar(
-                                                child: Image(
-                                                    image: NetworkImage(
-                                                        "${socialCubit.get(context).comment[index].image}")),
-                                              ),
-                                              SizedBox(width: 10),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                      "${socialCubit.get(context).comment[index].name}"),
-                                                  Text(
-                                                      "${socialCubit.get(context).comment[index].date}",
-                                                      style: Theme.of(context).textTheme.caption),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          Spacer(),
-                                          IconButton(onPressed: () {}, icon: Icon(Icons.more_horiz))
-                                        ],
-                                      ),
-                                      Divider(
-                                        indent: 15,
-                                        endIndent: 15,
-                                      ),
-                                      Text("${socialCubit.get(context).comment[index].comment}")
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                          separatorBuilder: (context, index) {
-                            return Divider();
-                          },
-                          itemCount: socialCubit.get(context).comment.length),
-                    ),
-                  ],
-                );
-        }),
-  );
-}
+
 /****************************Home Layout */
 
 /**********************************ProfileEdit */

@@ -68,17 +68,14 @@ class commentModel {
   String? name;
   String? image;
   String? date;
-  commentModel({
-    this.comment,
-    this.name,
-    this.image,
-    this.date,
-  });
+  String? idComment;
+  commentModel({this.comment, this.name, this.image, this.date, this.idComment});
   commentModel.fromJson(Map<String?, dynamic> json) {
     comment = json['comment'];
     name = json['name'];
     image = json['image'];
     date = json['date'];
+    idComment = json['idComment'];
   }
   Map<String, dynamic> toMap() {
     return {
@@ -86,6 +83,7 @@ class commentModel {
       'name': name,
       'image': image,
       'date': date,
+      'idComment': idComment,
     };
   }
 }

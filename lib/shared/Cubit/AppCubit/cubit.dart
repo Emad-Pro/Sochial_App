@@ -1,18 +1,16 @@
 import 'dart:io';
 
-import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:my_app_sochial/layout/Home_Layout/screens/chats/chats.dart';
+
 import 'package:my_app_sochial/layout/Home_Layout/screens/feeds/feeds.dart';
+import 'package:my_app_sochial/models/chatModel.dart';
 import 'package:my_app_sochial/models/postModel.dart';
 import 'package:my_app_sochial/models/usersModel.dart';
 import 'package:my_app_sochial/shared/Cubit/AppCubit/state.dart';
-import 'package:my_app_sochial/shared/Cubit/LoginCubit/states.dart';
 
 import '../../../Components/components.dart';
 import '../../../layout/Home_Layout/screens/notifications/notifications.dart';
@@ -22,11 +20,11 @@ class socialCubit extends Cubit<socialStates> {
   socialCubit() : super(socialInitialState());
   static socialCubit get(context) => BlocProvider.of(context);
   TextEditingController dateController = TextEditingController();
-
+  String currentUid = FirebaseAuth.instance.currentUser!.uid;
   socialUsersModel? model;
   void getUserData() {
     emit(socialGetUserLoadingState());
-    FirebaseFirestore.instance.collection('users').doc(uId).get().then((value) {
+    FirebaseFirestore.instance.collection('users').doc(currentUid).get().then((value) {
       print(value.data());
       model = socialUsersModel.fromJson(value.data()!);
       emit(socialGetUserSuccessState());
@@ -84,7 +82,7 @@ class socialCubit extends Cubit<socialStates> {
     firebase_storage.FirebaseStorage.instance
         .ref()
         .child(
-          'users/${uId}/ProfileImage/${Uri.file(
+          'users/${currentUid}/ProfileImage/${Uri.file(
             profileimage!.path,
           ).pathSegments.last}',
         )
@@ -93,7 +91,7 @@ class socialCubit extends Cubit<socialStates> {
       value.ref.getDownloadURL().then((value) {
         FirebaseFirestore.instance
             .collection('users')
-            .doc(model!.uId)
+            .doc(currentUid)
             .update({'image': value}).then((value) {});
         getUserData();
         emit(socialUploadProfileImageSuccessState());
@@ -123,14 +121,14 @@ class socialCubit extends Cubit<socialStates> {
     emit(socialUploadProfileCoverLoadingState());
     firebase_storage.FirebaseStorage.instance
         .ref()
-        .child('users/${uId}/CoverImage/${Uri.file(coverImage!.path).pathSegments.last}')
+        .child('users/${currentUid}/CoverImage/${Uri.file(coverImage!.path).pathSegments.last}')
         .putFile(coverImage!)
         .then((value) {
       value.ref.getDownloadURL().then((value) {
         print(value);
         FirebaseFirestore.instance
             .collection("users")
-            .doc(model!.uId)
+            .doc(currentUid)
             .update({'coverimage': value}).then((value) {
           getUserData();
           emit(socialUploadProfileCoverSuccessState());
@@ -152,7 +150,7 @@ class socialCubit extends Cubit<socialStates> {
       required String? date,
       required String? bio}) {
     emit(socialUpdateDataLoadingState());
-    FirebaseFirestore.instance.collection("users").doc(model!.uId).update({
+    FirebaseFirestore.instance.collection("users").doc(currentUid).update({
       "name": name,
       "phone": phone,
       "bio": bio,
@@ -208,19 +206,19 @@ class socialCubit extends Cubit<socialStates> {
     String? postImage,
   }) {
     emit(socialCreatePostLoadingState());
-    FirebaseFirestore.instance.collection("users").doc(uId).collection('posts').add({
+    FirebaseFirestore.instance.collection("users").doc(currentUid).collection('posts').add({
       "name": model!.name,
       "image": model!.image,
-      "uId": model!.uId,
+      "uId": currentUid,
       "date": DateTime.now().toString(),
       "text": text,
       "postId": "",
-      'Likes': {uId: false},
+      'Likes': {currentUid: false},
       "postImage": postImage ?? '',
     }).then((value) {
       FirebaseFirestore.instance
           .collection("users")
-          .doc(uId)
+          .doc(currentUid)
           .collection('posts')
           .doc(value.id)
           .update({"postId": value.id});
@@ -235,7 +233,7 @@ class socialCubit extends Cubit<socialStates> {
     emit(socialDeletePostLoadingState());
     FirebaseFirestore.instance
         .collection('users')
-        .doc(uId)
+        .doc(currentUid)
         .collection('posts')
         .doc(postId)
         .delete()
@@ -251,7 +249,7 @@ class socialCubit extends Cubit<socialStates> {
     emit(socialUPdatePostLoadingState());
     FirebaseFirestore.instance
         .collection('users')
-        .doc(uId)
+        .doc(currentUid)
         .collection('posts')
         .doc(postId)
         .update({'text': text, 'postImage': postImage ?? ''}).then((value) {
@@ -271,7 +269,7 @@ class socialCubit extends Cubit<socialStates> {
     Likes = [];
     FirebaseFirestore.instance
         .collection("users")
-        .doc('${uId}')
+        .doc(currentUid)
         .collection('posts')
         .get()
         .then((value) {
@@ -292,57 +290,58 @@ class socialCubit extends Cubit<socialStates> {
   }
 
   void likePost(String? postId, int index) {
-    if (Likes[index][uId] == true) {
+    print(postId);
+    if (Likes[index][currentUid] == true) {
       FirebaseFirestore.instance
           .collection('users')
-          .doc(uId)
+          .doc(currentUid)
           .collection('posts')
           .doc(postId)
           .update({
-        'Likes': {uId: false}
+        'Likes': {currentUid: false}
       }).then((value) {
         getPostData();
       });
       FirebaseFirestore.instance
           .collection('users')
-          .doc(uId)
+          .doc(currentUid)
           .collection('posts')
           .doc(postId)
           .collection("likesCount")
-          .doc(uId)
+          .doc(currentUid)
           .delete();
     } else {
       FirebaseFirestore.instance
           .collection('users')
-          .doc(uId)
+          .doc(currentUid)
           .collection('posts')
           .doc(postId)
           .update({
-        'Likes': {uId: true}
+        'Likes': {currentUid: true}
       }).then((value) {
         getPostData();
       });
       FirebaseFirestore.instance
           .collection('users')
-          .doc(uId)
+          .doc(currentUid)
           .collection('posts')
           .doc(postId)
           .collection("likesCount")
-          .doc(uId)
-          .set({"${uId.toString()}": true});
+          .doc(currentUid)
+          .set({"${currentUid.toString()}": true});
     }
   }
 
   void addCommentPost(String? postId, {String? comment}) {
     FirebaseFirestore.instance
         .collection('users')
-        .doc(uId)
+        .doc(currentUid)
         .collection("posts")
         .doc('${postId}')
         .collection('comment')
         .add({
       "name": model!.name,
-      "uId": model!.uId,
+      "uId": uId,
       'comment': comment,
       'image': model!.image,
       'date': DateTime.now().toString()
@@ -354,27 +353,33 @@ class socialCubit extends Cubit<socialStates> {
   }
 
   List<commentModel> comment = [];
+  List idComment = [];
   int? commentCount = 0;
   int? likeCount = 0;
   void getCommentPost(String? postid) {
     emit(socialGetCommentPostLoadingState());
     comment = [];
+    idComment = [];
     commentCount;
     likeCount;
     FirebaseFirestore.instance
         .collection('users')
-        .doc(uId)
+        .doc(currentUid)
         .collection("posts")
         .doc('${postid}')
         .collection('comment')
+        .orderBy('date')
         .get()
         .then((value) {
       value.docs.forEach((element) {
+        print(element.id);
+        idComment.add(element.id);
         comment.add(commentModel.fromJson(element.data()));
       });
+      print(currentUid);
       FirebaseFirestore.instance
           .collection('users')
-          .doc(uId)
+          .doc(currentUid)
           .collection("posts")
           .doc('${postid}')
           .collection('comment')
@@ -385,7 +390,7 @@ class socialCubit extends Cubit<socialStates> {
       });
       FirebaseFirestore.instance
           .collection('users')
-          .doc(uId)
+          .doc(currentUid)
           .collection("posts")
           .doc('${postid}')
           .collection('likesCount')
@@ -397,6 +402,119 @@ class socialCubit extends Cubit<socialStates> {
       emit(socialGetCommentPostSuccessState());
     }).catchError((onError) {
       emit(socialGetCommentPostErorrState(onError.toString()));
+    });
+  }
+
+  void deleteComment({required String? commentId, required String? postId}) {
+    print(postId);
+    print(commentId);
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUid)
+        .collection('posts')
+        .doc(postId)
+        .collection('comment')
+        .doc(commentId!)
+        .delete()
+        .then((value) {
+      getCommentPost(postId);
+    }).catchError((onError) {});
+  }
+
+  List<socialUsersModel> users = [];
+  void getUsers() {
+    users = [];
+    emit(socialGetAllUsersLoadingState());
+    FirebaseFirestore.instance.collection('users').get().then((value) {
+      value.docs.forEach((element) {
+        if (element.data()['uId'] != currentUid) {
+          print(element.data()['uId'].toString());
+          users.add(socialUsersModel.fromJson(element.data()));
+        }
+
+        emit(socialGetAllUsersSuccessState());
+      });
+    }).catchError((onError) {
+      emit(socialGetAllUsersErorrState(onError.toString()));
+    });
+  }
+
+  void sendMessage({
+    required String reciverId,
+    String? dateTime,
+    String? imageUrl,
+    required String text,
+  }) {
+    MessgeModel model = MessgeModel(
+        senderId: currentUid,
+        reciverId: reciverId,
+        dateTime: DateTime.now().toString(),
+        text: text,
+        image: imageUrl ?? '');
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUid)
+        .collection('chats')
+        .doc(reciverId)
+        .collection("Messges")
+        .add(model.toMap())
+        .then((value) {
+      emit(socialSendMessgeSuccessState());
+    }).catchError((onError) {
+      emit(socialSendMessgeErorrState());
+    });
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(reciverId)
+        .collection('chats')
+        .doc(currentUid)
+        .collection("Messges")
+        .add(model.toMap())
+        .then((value) {
+      emit(socialSendMessgeSuccessState());
+    }).catchError((onError) {
+      emit(socialSendMessgeErorrState());
+    });
+  }
+
+  void uploadImageMessage({
+    required String reciverId,
+    required String text,
+  }) {
+    emit(socialUploadImageMessageLoadingState());
+    firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('MessageImage/${currentUid}/${Uri.file(imagePost!.path).pathSegments.last}')
+        .putFile(imagePost!)
+        .then((value) {
+      value.ref.getDownloadURL().then((value) {
+        sendMessage(reciverId: reciverId, text: text, imageUrl: value);
+        deletePostImage();
+      });
+    }).catchError((onError) {});
+  }
+
+  List<MessgeModel> messagesList = [];
+  void getMessages({
+    required String reciverId,
+  }) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUid)
+        .collection('chats')
+        .doc(reciverId)
+        .collection('Messges')
+        .orderBy(
+          'dateTime',
+        )
+        .snapshots()
+        .listen((event) {
+      print(event.docChanges.length);
+      messagesList = [];
+      event.docs.forEach((element) {
+        messagesList.add(MessgeModel.fromJson(element.data()));
+      });
+      emit(socialGetMessgeSuccessState());
     });
   }
 }

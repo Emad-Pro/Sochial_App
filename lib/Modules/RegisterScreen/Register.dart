@@ -6,6 +6,7 @@ import '../../Components/components.dart';
 import '../../layout/Home_Layout/home.dart';
 import '../../shared/Cubit/RegisterCubit/cubit.dart';
 import '../../shared/Cubit/RegisterCubit/states.dart';
+import '../LoginScreen/Login.dart';
 
 class Register extends StatelessWidget {
   TextEditingController NameController = TextEditingController();
@@ -22,7 +23,7 @@ class Register extends StatelessWidget {
       child: BlocConsumer<socialRegisterCubit, socialRegisterState>(
         listener: (context, state) {
           if (state is socialCreateUserSuccessState) {
-            navigtorPushClick(context, HomeLayout());
+            navigtorPushClick(context, LoginScreen());
           }
         },
         builder: (context, state) {
@@ -43,8 +44,7 @@ class Register extends StatelessWidget {
                           child: Container(
                             height: 200,
                             width: 200,
-                            child: Image.asset(
-                                "lib/assets/Image/RegisterScreen/register.png"),
+                            child: Image.asset("lib/assets/Image/RegisterScreen/register.png"),
                           ),
                         ),
                         Text("أنشاء حساب"),
@@ -98,9 +98,7 @@ class Register extends StatelessWidget {
                               return null;
                             },
                             FormFielController: PasswordController,
-                            ispassword: socialRegisterCubit
-                                .get(context)
-                                .PasswordVisibility,
+                            ispassword: socialRegisterCubit.get(context).PasswordVisibility,
                             prefixicon: Icon(Icons.lock_outline_rounded),
                             suffixIcon: MaterialButton(
                               minWidth: 0,
@@ -109,8 +107,7 @@ class Register extends StatelessWidget {
                               onPressed: () {
                                 socialRegisterCubit.get(context).ispassword();
                               },
-                              child: Icon(
-                                  socialRegisterCubit.get(context).suffixicon),
+                              child: Icon(socialRegisterCubit.get(context).suffixicon),
                             ),
                             HintText: "كلمة المرور"),
                         SizedBox(
@@ -144,8 +141,7 @@ class Register extends StatelessWidget {
                                       phone: PhoneController.text);
                                 }
                               }),
-                          fallback: ((context) =>
-                              Center(child: CircularProgressIndicator())),
+                          fallback: ((context) => Center(child: CircularProgressIndicator())),
                           condition: state is! socialRegisterLoadingState,
                         ),
                         Row(

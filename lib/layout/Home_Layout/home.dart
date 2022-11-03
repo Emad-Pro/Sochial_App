@@ -3,14 +3,18 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:my_app_sochial/layout/Home_Layout/screens/chats/chats.dart';
 import 'package:my_app_sochial/shared/Cubit/AppCubit/cubit.dart';
 import 'package:my_app_sochial/shared/Cubit/AppCubit/state.dart';
 import 'package:my_app_sochial/shared/locale/color/color.dart';
 
 import '../../Components/components.dart';
+import '../../shared/locale/SharedPrefrences/CacheHelper.dart';
 import '../Profile/editProfile/edit.dart';
 
 class HomeLayout extends StatelessWidget {
@@ -20,6 +24,9 @@ class HomeLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     TabController tabController;
     return BlocConsumer<socialCubit, socialStates>(listener: (context, state) {
+      if (state is socialCommentPostSuccessState) {
+        toastStyle(context: context, massege: "تم اضافة التعليق بنجاح", colortoast: Colors.green);
+      }
       if (state is socialUploadProfileCoverSuccessState ||
           state is socialUploadProfileImageSuccessState) {
         socialCubit.get(context).profileimage = null;
@@ -44,9 +51,25 @@ class HomeLayout extends StatelessWidget {
               builder: ((context) {
                 var cubit = socialCubit.get(context);
                 return Scaffold(
-                  appBar: AppBar(
-                      title: Text("${cubit.title[cubit.currentIndex]}"),
-                      actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))]),
+                  appBar: AppBar(title: Text("${cubit.title[cubit.currentIndex]}"), actions: [
+                    IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+                    IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                              isScrollControlled: true,
+                              shape:
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                              context: context,
+                              builder: ((context) => Container(
+                                  child: createNewPost(context, model: socialCubit.get(context)))));
+                        },
+                        icon: Icon(Iconsax.additem)),
+                    IconButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Chats()));
+                        },
+                        icon: Icon(CupertinoIcons.chat_bubble))
+                  ]),
                   drawer: Drawer(
                     width: double.infinity,
                     child: SingleChildScrollView(
@@ -150,18 +173,6 @@ class HomeLayout extends StatelessWidget {
                       BottomNavigationBarItem(
                           icon: Icon(Icons.notifications_none), label: "الاشعارات"),
                     ],
-                  ),
-                  floatingActionButton: FloatingActionButton(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                    onPressed: () {
-                      showModalBottomSheet(
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                          context: context,
-                          builder: ((context) => Container(
-                              child: createNewPost(context, model: socialCubit.get(context)))));
-                    },
-                    child: Icon(Icons.post_add),
                   ),
                 );
               })));

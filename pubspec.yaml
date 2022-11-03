@@ -51,8 +51,10 @@ dependencies:
   image_picker: ^0.8.6
   firebase_storage: ^10.3.11
   photo_view: ^0.14.0
-  circular_menu: ^2.0.1
   pull_down_button: ^0.3.1
+  iconsax: ^0.0.8
+  firebase_messaging: ^13.1.0
+
 
 dev_dependencies:
   flutter_test:
