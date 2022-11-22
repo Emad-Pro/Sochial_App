@@ -21,3 +21,12 @@ class socialCreateUserErorrState extends socialRegisterState {
 class socialRegisterChangeOserctorAndIconState extends socialRegisterState {}
 
 class socialRegisterCheckInternet extends socialRegisterState {}
+
+class socialrestPasswordLoadingState extends socialRegisterState {}
+
+class socialrestPasswordSuccessState extends socialRegisterState {}
+
+class socialrestPasswordErorrState extends socialRegisterState {
+  final Erorr;
+  socialrestPasswordErorrState(this.Erorr);
+}

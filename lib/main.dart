@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_app_sochial/layout/Home_Layout/home.dart';
@@ -16,9 +18,17 @@ import 'Modules/LoginScreen/Login.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  HttpOverrides.global = MyHttpOverrides();
-  await Firebase.initializeApp();
   await CacheHelper.init();
+  await Firebase.initializeApp(
+    // Replace with actual values
+    options: FirebaseOptions(
+      apiKey: "AIzaSyAaaptUKMt1xnyecbVetsqp3MhgCE74gCk",
+      appId: "1:31298725941:android:de04892eba691d6dbfa97c",
+      messagingSenderId: "31298725941",
+      projectId: "sochial-website",
+    ),
+  );
+  HttpOverrides.global = MyHttpOverrides();
   bool? darkMode = CacheHelper.GetSaveData(key: 'DarkMode');
   uId = CacheHelper.GetSaveData(key: 'uId');
   Widget? widget;
@@ -44,35 +54,46 @@ class Main extends StatelessWidget {
           create: (context) => SettingCubit()..toggleTheme(DarkShared: darkMode),
         ),
         BlocProvider(
-            create: (context) => socialCubit()
-              ..getUserData()
-              ..getPostData())
+            create: (context) => socialCubit()..currentUid = FirebaseAuth.instance.currentUser!.uid)
       ],
-      child: BlocBuilder<SettingCubit, SettingStates>(
-        builder: (context, state) => MaterialApp(
-          themeMode: SettingCubit.get(context).DarkMode ? ThemeMode.dark : ThemeMode.light,
-          theme: ThemeData.light(
-            useMaterial3: true,
-          ).copyWith(
-            floatingActionButtonTheme: const FloatingActionButtonThemeData(
-              backgroundColor: Colors.blue,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: BlocBuilder<SettingCubit, SettingStates>(
+          builder: (context, state) => MaterialApp(
+            title: "Social App",
+            themeMode: SettingCubit.get(context).DarkMode ? ThemeMode.dark : ThemeMode.light,
+            theme: ThemeData.light(
+              useMaterial3: true,
+            ).copyWith(
+              cardTheme: CardTheme(color: Color.fromARGB(255, 200, 216, 224)),
+              tabBarTheme: const TabBarTheme(
+                labelColor: Color.fromARGB(255, 0, 0, 0),
+                labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)), // color for text
+              ),
+              floatingActionButtonTheme: const FloatingActionButtonThemeData(
+                backgroundColor: Colors.blue,
+              ),
+              textTheme: ThemeData.light().textTheme.apply(
+                    fontFamily: "Cairo",
+                  ),
             ),
-            textTheme: ThemeData.light().textTheme.apply(
-                  fontFamily: "Cairo",
-                ),
-          ),
-          darkTheme: ThemeData.dark(
-            useMaterial3: true,
-          ).copyWith(
-            floatingActionButtonTheme: const FloatingActionButtonThemeData(
-              backgroundColor: Colors.teal,
+            darkTheme: ThemeData.dark(
+              useMaterial3: true,
+            ).copyWith(
+              tabBarTheme: const TabBarTheme(
+                labelColor: Color.fromARGB(255, 255, 255, 255),
+                labelStyle: TextStyle(color: Color.fromARGB(255, 255, 255, 255)), // color for text
+              ),
+              floatingActionButtonTheme: const FloatingActionButtonThemeData(
+                backgroundColor: Colors.teal,
+              ),
+              textTheme: ThemeData.dark().textTheme.apply(
+                    fontFamily: "Cairo",
+                  ),
             ),
-            textTheme: ThemeData.dark().textTheme.apply(
-                  fontFamily: "Cairo",
-                ),
+            home: Directionality(textDirection: TextDirection.rtl, child: startWidget),
+            debugShowCheckedModeBanner: false,
           ),
-          home: startWidget,
-          debugShowCheckedModeBanner: false,
         ),
       ),
     );
@@ -86,74 +107,3 @@ class MyHttpOverrides extends HttpOverrides {
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }
-
-/*import 'package:flutter/material.dart';
-
-void main() {
-  runApp(Main());
-}
-
-class Main extends StatefulWidget {
-  const Main({Key? key}) : super(key: key);
-
-  @override
-  _MainState createState() => _MainState();
-}
-
-class _MainState extends State<Main> with TickerProviderStateMixin {
-  TabController? mycontroller;
-  @override
-  void initState() {
-    mycontroller = TabController(
-      length: 5,
-      vsync: this,
-    );
-    // TODO: implement initState
-    super.initState();
-  }
-
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
-            appBar: AppBar(
-                title: Text("asd"),
-                bottom: TabBar(
-                  controller: mycontroller,
-                  isScrollable: true,
-                  tabs: [
-                    Tab(
-                      icon: Icon(Icons.abc),
-                    ),
-                    Tab(
-                      icon: Icon(Icons.abc),
-                    ),
-                    Tab(
-                      icon: Icon(Icons.abc),
-                    ),
-                    Tab(
-                      icon: Icon(Icons.abc),
-                    ),
-                    Tab(
-                      icon: Icon(Icons.abc),
-                    ),
-                  ],
-                )),
-            body: TabBarView(controller: mycontroller, children: [
-              Container(
-                child: Text("data1"),
-              ),
-              Container(
-                child: Text("data2"),
-              ),
-              Container(
-                child: Text("data3"),
-              ),
-              Container(
-                child: Text("data4"),
-              ),
-              Container(
-                child: Text("data4"),
-              ),
-            ])));
-  }
-}*/

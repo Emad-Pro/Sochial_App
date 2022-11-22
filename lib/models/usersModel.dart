@@ -10,6 +10,7 @@ class socialUsersModel {
   String? relationship;
   String? education;
   String? date;
+  String? joinedis;
   socialUsersModel({
     this.name,
     this.email,
@@ -22,6 +23,7 @@ class socialUsersModel {
     this.relationship,
     this.education,
     this.date,
+    this.joinedis,
   });
   socialUsersModel.fromJson(Map<String?, dynamic> json) {
     name = json['name'];
@@ -35,6 +37,7 @@ class socialUsersModel {
     relationship = json['relationship'];
     education = json['education'];
     date = json['date'];
+    joinedis = json['joinedis'];
   }
   Map<String, dynamic> toMap() {
     return {
@@ -49,6 +52,7 @@ class socialUsersModel {
       'education': education,
       'relationship': relationship,
       'date': date,
+      'joinedis': joinedis,
     };
   }
 }

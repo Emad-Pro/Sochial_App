@@ -1,8 +1,10 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:my_app_sochial/shared/Cubit/AppCubit/cubit.dart';
 import 'package:my_app_sochial/shared/locale/color/color.dart';
 
 import '../../Components/components.dart';
@@ -10,8 +12,10 @@ import '../../layout/Home_Layout/home.dart';
 import '../../shared/Cubit/LoginCubit/cubit.dart';
 import '../../shared/Cubit/LoginCubit/states.dart';
 import '../../shared/Cubit/SettingCubit/cubit.dart';
+import '../../shared/http.dart';
 import '../../shared/locale/SharedPrefrences/CacheHelper.dart';
 import '../RegisterScreen/Register.dart';
+import '../forgotPassword/forgotPassword.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({Key? key}) : super(key: key);
@@ -26,20 +30,20 @@ class LoginScreen extends StatelessWidget {
       child: BlocConsumer<socialLoginCubit, socialLoginState>(
         listener: (context, state) {
           if (state is socialLoginSuccessState) {
-            CacheHelper.saveData(key: 'uId', value: state.uId).then((value) {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => HomeLayout()));
+            CacheHelper.saveData(
+                    key: 'uId', value: FirebaseAuth.instance.currentUser!.uid.toString())
+                .then((value) {
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => HomeLayout()),
+                  (Route<dynamic> route) => false);
             });
-
             toastStyle(
-                context: context,
-                massege: "تم تسجيل الدخول بنجاح",
-                colortoast: color.colorsgreen);
+                context: context, massege: "تم تسجيل الدخول بنجاح", colortoast: color.colorsgreen);
           }
           if (state is socialLoginErorrState) {
             toastStyle(
                 context: context,
-                massege: state.Erorr,
+                massege: "خطأ في اسم المستخدم او كلمة المرور",
                 colortoast: color.colorsred);
           }
         },
@@ -49,8 +53,7 @@ class LoginScreen extends StatelessWidget {
             child: Scaffold(
               drawer: Drawer(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 30, horizontal: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 15),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -85,15 +88,18 @@ class LoginScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Image.asset("lib/assets/Image/LoginScreen/login.png"),
+                        Center(
+                          child: Image.asset(
+                            "lib/assets/Image/LoginScreen/login.png",
+                            height: 200,
+                          ),
+                        ),
                         const Text(
                           "تسجيل الدخول",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                         ),
                         textFormFiledDefult(
-                          paddingcontainer:
-                              const EdgeInsets.symmetric(vertical: 10),
+                          paddingcontainer: const EdgeInsets.symmetric(vertical: 10),
                           ispassword: false,
                           validate: (value) {
                             if (value!.isEmpty) {
@@ -103,17 +109,14 @@ class LoginScreen extends StatelessWidget {
                           },
                           FormFielController: EmailController,
                           HintText: "البريد الالكتروني",
-                          prefixicon:
-                              const Icon(Icons.alternate_email_outlined),
+                          prefixicon: const Icon(Icons.alternate_email_outlined),
                           typekeyboard: TextInputType.emailAddress,
                         ),
                         const SizedBox(
                           height: 15,
                         ),
                         textFormFiledDefult(
-                            ispassword: socialLoginCubit
-                                .get(context)
-                                .PasswordVisibility,
+                            ispassword: socialLoginCubit.get(context).PasswordVisibility,
                             validate: (value) {
                               if (value!.isEmpty) {
                                 return "أدخل كلمة المرور";
@@ -140,7 +143,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            //    BtnPushClick(context, ForgotPasswortScreen());
+                            navigtorPushClick(context, ForgotPassword());
                           },
                           child: const Text(
                             "نسيت كلمة المرور?",
@@ -161,8 +164,7 @@ class LoginScreen extends StatelessWidget {
                                       );
                                 }
                               }),
-                          fallback: ((context) =>
-                              const Center(child: CircularProgressIndicator())),
+                          fallback: ((context) => const Center(child: CircularProgressIndicator())),
                           condition: state is! socialLoginLoadingState,
                         ),
                         Container(

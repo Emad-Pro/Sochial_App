@@ -6,39 +6,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_app_sochial/shared/Cubit/RegisterCubit/states.dart';
 
+import '../../../Components/components.dart';
 import '../../../models/usersModel.dart';
 
 class socialRegisterCubit extends Cubit<socialRegisterState> {
   socialRegisterCubit() : super(socialRegisterInitialState());
   static socialRegisterCubit get(context) => BlocProvider.of(context);
 
-  void userRegister({
-    required String name,
-    required String email,
-    required String phone,
-    required String password,
-  }) async {
+  void userRegister(
+      {required String name,
+      required String email,
+      required String phone,
+      required String password,
+      required context}) async {
     emit(socialRegisterLoadingState());
+
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: password)
         .then((value) {
-      print(value.user!.email.toString());
-      print(value.user!.uid.toString());
-      userCreate(email: email, name: name, phone: phone, uId: value.user!.uid.toString());
+      userCreate(
+        email: email,
+        name: name,
+        phone: phone,
+        uId: value.user!.uid.toString(),
+      );
     }).catchError((onError) {
+      if (onError.toString() ==
+          '[firebase_auth/email-already-in-use] The email address is already in use by another account.') {
+        toastStyle(context: context, massege: "هذا البريد الالكتروني مسجل من قبل");
+      }
       emit(socialRegisterErorrState(onError));
-      print(onError.toString());
     });
   }
 
   void userCreate({
-    required String name,
-    required String email,
-    required String phone,
-    String? date,
-    String? education,
-    String? relationship,
-    required String uId,
+    required String? name,
+    required String? email,
+    required String? phone,
+    required String? uId,
   }) {
     socialUsersModel? model = socialUsersModel(
       name: name,
@@ -46,12 +51,15 @@ class socialRegisterCubit extends Cubit<socialRegisterState> {
       phone: phone,
       uId: uId,
       isEmailVerified: false,
+      joinedis: DateTime.now().year.toString(),
+      coverimage:
+          'https://firebasestorage.googleapis.com/v0/b/sochial-website.appspot.com/o/1j%2BojFVDOMkX9Wytexe43D6kh...eIrRRNmhjOwXs1M3EMoAJtliYlg...png?alt=media&token=835ad8c7-327e-450a-9f2a-54dfd3256ccb',
       image:
-          'https://img.freepik.com/free-photo/studio-portrait-bearded-man-posing-beige-background-looking-into-camera-with-broad-smile-his-face_295783-16582.jpg?w=740&t=st=1666104228~exp=1666104828~hmac=a3d773d1949d9798115cf824499df4eba19b1915539ed797673cdd7adfa51775',
-      bio: 'write Your Bio ...',
+          'https://firebasestorage.googleapis.com/v0/b/sochial-website.appspot.com/o/1j%2BojFVDOMkX9Wytexe43D6kh...eIrRRNmhjOwXs1M3EMoAJtliYlg...png?alt=media&token=835ad8c7-327e-450a-9f2a-54dfd3256ccb',
+      bio: '',
       education: '',
       relationship: '',
-      date: DateTime.now().toString(),
+      date: '',
     );
     FirebaseFirestore.instance.collection('users').doc(uId).set(model.toMap()).then((value) {
       emit(socialCreateUserSuccessState());
@@ -72,5 +80,36 @@ class socialRegisterCubit extends Cubit<socialRegisterState> {
     }
 
     emit(socialRegisterChangeOserctorAndIconState());
+  }
+
+  Future forgotPassword(String? email, context) async {
+    emit(socialrestPasswordLoadingState());
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email!);
+      toastStyle(
+          context: context,
+          massege: "تم ارسال رابط تغيير كلمة المرور الخاصة بك الي  ${email}",
+          colortoast: Colors.blue);
+    } on FirebaseAuthException catch (e) {
+      print(e);
+      if (e.toString() ==
+          '[firebase_auth/user-not-found] There is no user record corresponding to this identifier. The user may have been deleted.') {
+        toastStyle(
+            context: context,
+            massege: "هذا البريد الالكتروني غير مسجل لدينا",
+            colortoast: Colors.amber[900]);
+      } else if (e.toString() ==
+          '[firebase_auth/invalid-email] The email address is badly formatted.') {
+        toastStyle(
+            context: context,
+            massege: "صيغة البريد الالكتروني هذه غير صحيحة",
+            colortoast: Colors.red);
+      } else if (e.toString() ==
+              '[firebase_auth/network-request-failed] A network error (such as timeout, interrupted connection or unreachable host) has occurred.' ||
+          e.toString() ==
+              '[firebase_auth/unknown] com.google.firebase.FirebaseException: An internal error has occurred. [ Connection closed by peer ]') {
+        toastStyle(context: context, massege: "تأكد من اتصال الانترنت ", colortoast: Colors.red);
+      }
+    }
   }
 }
