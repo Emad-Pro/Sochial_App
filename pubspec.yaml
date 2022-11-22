@@ -54,12 +54,28 @@ dependencies:
   pull_down_button: ^0.3.1
   iconsax: ^0.0.8
   firebase_messaging: ^13.1.0
-
+  jiffy: ^5.0.0
+  modal_bottom_sheet: ^2.1.2
+  http: ^0.13.5
+  flutter_native_splash: ^2.2.14
+  search_page: ^2.2.0
+  intl: ^0.17.0
+  auto_direction: ^0.0.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: "^0.10.0"
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "lib/assets/icon/icon.png"
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: lib/assets/splash/splash.png
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -82,6 +98,7 @@ flutter:
   assets:
     - lib/assets/Image/LoginScreen/
     - lib/assets/Image/RegisterScreen/
+    - lib/assets/Image/forgotPass/
 
   fonts:
     - family: Cairo

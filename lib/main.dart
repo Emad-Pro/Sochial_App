@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -18,14 +19,16 @@ import 'Modules/LoginScreen/Login.dart';
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await CacheHelper.init();
-  await Firebase.initializeApp();
-  var token = await FirebaseMessaging.instance.getToken();
-  FirebaseMessaging.onMessage.listen(((event) {
-    print(event.data);
-  }));
-  print(token);
-  // HttpOverrides.global = MyHttpOverrides();
-
+  await Firebase.initializeApp(
+    // Replace with actual values
+    options: FirebaseOptions(
+      apiKey: "AIzaSyAaaptUKMt1xnyecbVetsqp3MhgCE74gCk",
+      appId: "1:31298725941:android:de04892eba691d6dbfa97c",
+      messagingSenderId: "31298725941",
+      projectId: "sochial-website",
+    ),
+  );
+  HttpOverrides.global = MyHttpOverrides();
   bool? darkMode = CacheHelper.GetSaveData(key: 'DarkMode');
   uId = CacheHelper.GetSaveData(key: 'uId');
   Widget? widget;
@@ -51,19 +54,22 @@ class Main extends StatelessWidget {
           create: (context) => SettingCubit()..toggleTheme(DarkShared: darkMode),
         ),
         BlocProvider(
-            create: (context) => socialCubit()
-              ..getUserData()
-              ..getUsers()
-              ..getPostData())
+            create: (context) => socialCubit()..currentUid = FirebaseAuth.instance.currentUser!.uid)
       ],
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocBuilder<SettingCubit, SettingStates>(
           builder: (context, state) => MaterialApp(
+            title: "Social App",
             themeMode: SettingCubit.get(context).DarkMode ? ThemeMode.dark : ThemeMode.light,
             theme: ThemeData.light(
               useMaterial3: true,
             ).copyWith(
+              cardTheme: CardTheme(color: Color.fromARGB(255, 200, 216, 224)),
+              tabBarTheme: const TabBarTheme(
+                labelColor: Color.fromARGB(255, 0, 0, 0),
+                labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)), // color for text
+              ),
               floatingActionButtonTheme: const FloatingActionButtonThemeData(
                 backgroundColor: Colors.blue,
               ),
@@ -74,6 +80,10 @@ class Main extends StatelessWidget {
             darkTheme: ThemeData.dark(
               useMaterial3: true,
             ).copyWith(
+              tabBarTheme: const TabBarTheme(
+                labelColor: Color.fromARGB(255, 255, 255, 255),
+                labelStyle: TextStyle(color: Color.fromARGB(255, 255, 255, 255)), // color for text
+              ),
               floatingActionButtonTheme: const FloatingActionButtonThemeData(
                 backgroundColor: Colors.teal,
               ),
@@ -81,7 +91,7 @@ class Main extends StatelessWidget {
                     fontFamily: "Cairo",
                   ),
             ),
-            home: startWidget,
+            home: Directionality(textDirection: TextDirection.rtl, child: startWidget),
             debugShowCheckedModeBanner: false,
           ),
         ),

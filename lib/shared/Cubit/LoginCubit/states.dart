@@ -5,8 +5,8 @@ class socialLoginInitialState extends socialLoginState {}
 class socialLoginLoadingState extends socialLoginState {}
 
 class socialLoginSuccessState extends socialLoginState {
-  final String uId;
-  socialLoginSuccessState(this.uId);
+  final String? uId;
+  socialLoginSuccessState({this.uId});
 }
 
 class socialLoginErorrState extends socialLoginState {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:my_app_sochial/shared/Cubit/AppCubit/cubit.dart';
 import 'package:my_app_sochial/shared/locale/color/color.dart';
 
 import '../../Components/components.dart';
@@ -11,8 +12,10 @@ import '../../layout/Home_Layout/home.dart';
 import '../../shared/Cubit/LoginCubit/cubit.dart';
 import '../../shared/Cubit/LoginCubit/states.dart';
 import '../../shared/Cubit/SettingCubit/cubit.dart';
+import '../../shared/http.dart';
 import '../../shared/locale/SharedPrefrences/CacheHelper.dart';
 import '../RegisterScreen/Register.dart';
+import '../forgotPassword/forgotPassword.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({Key? key}) : super(key: key);
@@ -27,13 +30,9 @@ class LoginScreen extends StatelessWidget {
       child: BlocConsumer<socialLoginCubit, socialLoginState>(
         listener: (context, state) {
           if (state is socialLoginSuccessState) {
-            print(uId);
             CacheHelper.saveData(
                     key: 'uId', value: FirebaseAuth.instance.currentUser!.uid.toString())
                 .then((value) {
-              print(uId);
-              print("${FirebaseAuth.instance.currentUser!.uid.toString()}");
-              print("${FirebaseAuth.instance.currentUser!.uid}");
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => HomeLayout()),
                   (Route<dynamic> route) => false);
@@ -42,7 +41,10 @@ class LoginScreen extends StatelessWidget {
                 context: context, massege: "تم تسجيل الدخول بنجاح", colortoast: color.colorsgreen);
           }
           if (state is socialLoginErorrState) {
-            toastStyle(context: context, massege: state.Erorr, colortoast: color.colorsred);
+            toastStyle(
+                context: context,
+                massege: "خطأ في اسم المستخدم او كلمة المرور",
+                colortoast: color.colorsred);
           }
         },
         builder: (context, state) {
@@ -86,7 +88,12 @@ class LoginScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Image.asset("lib/assets/Image/LoginScreen/login.png"),
+                        Center(
+                          child: Image.asset(
+                            "lib/assets/Image/LoginScreen/login.png",
+                            height: 200,
+                          ),
+                        ),
                         const Text(
                           "تسجيل الدخول",
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -136,7 +143,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            //    BtnPushClick(context, ForgotPasswortScreen());
+                            navigtorPushClick(context, ForgotPassword());
                           },
                           child: const Text(
                             "نسيت كلمة المرور?",

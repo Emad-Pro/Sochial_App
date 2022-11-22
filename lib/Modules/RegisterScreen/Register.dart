@@ -1,6 +1,8 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:jiffy/jiffy.dart';
 
 import '../../Components/components.dart';
 import '../../layout/Home_Layout/home.dart';
@@ -9,10 +11,13 @@ import '../../shared/Cubit/RegisterCubit/states.dart';
 import '../LoginScreen/Login.dart';
 
 class Register extends StatelessWidget {
-  TextEditingController NameController = TextEditingController();
-  TextEditingController PasswordController = TextEditingController();
-  TextEditingController EmailController = TextEditingController();
-  TextEditingController PhoneController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+  TextEditingController educController = TextEditingController();
+  TextEditingController relController = TextEditingController();
   Register({Key? key}) : super(key: key);
 
   @override
@@ -23,15 +28,18 @@ class Register extends StatelessWidget {
       child: BlocConsumer<socialRegisterCubit, socialRegisterState>(
         listener: (context, state) {
           if (state is socialCreateUserSuccessState) {
+            toastStyle(context: context, massege: "تم انشاء حساب بنجاح", colortoast: Colors.blue);
             navigtorPushClick(context, LoginScreen());
           }
         },
         builder: (context, state) {
-          return Scaffold(
-            appBar: AppBar(),
-            body: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Container(
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text("انشاء حساب جديد"),
+              ),
+              body: Container(
                 margin: EdgeInsetsDirectional.all(20),
                 child: Form(
                   key: formkey,
@@ -41,24 +49,24 @@ class Register extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Center(
-                          child: Container(
-                            height: 200,
-                            width: 200,
-                            child: Image.asset("lib/assets/Image/RegisterScreen/register.png"),
+                          child: Image.asset(
+                            "lib/assets/Image/RegisterScreen/register.png",
+                            height: 150,
                           ),
                         ),
                         Text("أنشاء حساب"),
                         textFormFiledDefult(
-                            validate: (value) {
-                              if (value!.isEmpty) {
-                                return "أدخل الاسم ";
-                              }
-                              return null;
-                            },
-                            FormFielController: NameController,
-                            ispassword: false,
-                            prefixicon: Icon(Icons.perm_identity),
-                            HintText: "الاسم بالكامل"),
+                          validate: (value) {
+                            if (value!.isEmpty) {
+                              return "أدخل الاسم ";
+                            }
+                            return null;
+                          },
+                          FormFielController: nameController,
+                          ispassword: false,
+                          prefixicon: Icon(Icons.perm_identity),
+                          HintText: "الاسم بالكامل",
+                        ),
                         SizedBox(
                           height: 15,
                         ),
@@ -69,24 +77,10 @@ class Register extends StatelessWidget {
                               }
                               return null;
                             },
-                            FormFielController: EmailController,
+                            FormFielController: emailController,
                             ispassword: false,
                             prefixicon: Icon(Icons.alternate_email_outlined),
                             HintText: "البريد الالكتروني"),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        textFormFiledDefult(
-                            validate: (value) {
-                              if (value!.isEmpty) {
-                                return "أدخل كلمة السر ";
-                              }
-                              return null;
-                            },
-                            FormFielController: PhoneController,
-                            ispassword: false,
-                            prefixicon: Icon(Icons.phone),
-                            HintText: "رقم الهاتف"),
                         SizedBox(
                           height: 15,
                         ),
@@ -97,19 +91,34 @@ class Register extends StatelessWidget {
                               }
                               return null;
                             },
-                            FormFielController: PasswordController,
-                            ispassword: socialRegisterCubit.get(context).PasswordVisibility,
-                            prefixicon: Icon(Icons.lock_outline_rounded),
-                            suffixIcon: MaterialButton(
-                              minWidth: 0,
-                              height: 0,
-                              focusElevation: 10,
-                              onPressed: () {
-                                socialRegisterCubit.get(context).ispassword();
-                              },
-                              child: Icon(socialRegisterCubit.get(context).suffixicon),
-                            ),
-                            HintText: "كلمة المرور"),
+                            FormFielController: phoneController,
+                            ispassword: false,
+                            prefixicon: Icon(Icons.phone),
+                            HintText: "رقم الهاتف"),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        textFormFiledDefult(
+                          validate: (value) {
+                            if (value!.isEmpty) {
+                              return "أدخل رقم كلمة المرور ";
+                            }
+                            return null;
+                          },
+                          FormFielController: passwordController,
+                          ispassword: socialRegisterCubit.get(context).PasswordVisibility,
+                          prefixicon: Icon(Icons.lock_outline_rounded),
+                          suffixIcon: MaterialButton(
+                            minWidth: 0,
+                            height: 0,
+                            focusElevation: 10,
+                            onPressed: () {
+                              socialRegisterCubit.get(context).ispassword();
+                            },
+                            child: Icon(socialRegisterCubit.get(context).suffixicon),
+                          ),
+                          HintText: "كلمة المرور",
+                        ),
                         SizedBox(
                           height: 15,
                         ),
@@ -135,10 +144,11 @@ class Register extends StatelessWidget {
                               clickbtn: () async {
                                 if (formkey.currentState!.validate()) {
                                   socialRegisterCubit.get(context).userRegister(
-                                      name: NameController.text,
-                                      email: EmailController.text,
-                                      password: PasswordController.text,
-                                      phone: PhoneController.text);
+                                      name: nameController.text,
+                                      email: emailController.text,
+                                      password: passwordController.text,
+                                      phone: phoneController.text,
+                                      context: context);
                                 }
                               }),
                           fallback: ((context) => Center(child: CircularProgressIndicator())),
@@ -150,7 +160,7 @@ class Register extends StatelessWidget {
                             Text(" لديك حساب بالفعل ؟"),
                             TextButton(
                                 onPressed: () {
-                                  //  NavigateToCantBack(context, LoginScreen());
+                                  Navigator.pop(context);
                                 },
                                 child: Text("تسجيل الدخول"))
                           ],

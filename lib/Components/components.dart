@@ -7,9 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_app_sochial/Modules/LoginScreen/Login.dart';
 import 'package:my_app_sochial/models/postModel.dart';
+import 'package:my_app_sochial/models/usersModel.dart';
 import 'package:my_app_sochial/shared/Cubit/AppCubit/cubit.dart';
 import 'package:my_app_sochial/shared/Cubit/AppCubit/state.dart';
 import 'package:my_app_sochial/shared/Cubit/SettingCubit/state.dart';
@@ -20,7 +22,7 @@ import '../layout/Profile/editProfile/edit.dart';
 import '../shared/Cubit/SettingCubit/cubit.dart';
 import '../shared/locale/SharedPrefrences/CacheHelper.dart';
 
-String? uId = FirebaseAuth.instance.currentUser!.uid;
+String? uId;
 Widget textFormFiledDefult({
   Icon? prefixicon,
   required String HintText,
@@ -106,393 +108,304 @@ Widget darkMode() => BlocConsumer<SettingCubit, SettingStates>(
                       }),
                 ],
               ),
-              ElevatedButton(
-                  onPressed: () {
-                    CacheHelper.clearData(key: "uId").then((value) {
-                      Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(builder: (context) => LoginScreen()),
-                          (Route<dynamic> route) => false);
-                    });
-                    uId = '';
-                  },
-                  child: Text("تسجيل خروج"))
             ],
           ),
         );
       },
     );
 
+// ignore: slash_for_doc_comments
 /****************************Home Layout */
-
-Widget createNewPost(context, {model}) => Directionality(
-      textDirection: TextDirection.rtl,
-      child: BlocConsumer<socialCubit, socialStates>(
-        listener: (context, state) {
-          if (state is socialCreatePostSuccessState) {
-            toastStyle(
-                context: context, massege: "تم إضافة المنشور بنجاح", colortoast: Colors.green);
-            Navigator.pop(context);
-          }
-        },
-        builder: (context, state) {
-          TextEditingController postController = TextEditingController();
-          return state is socialCreatePostLoadingState
-              ? Center(child: CircularProgressIndicator())
-              : Scaffold(
-                  body: Column(
+Widget buildProfile(context) => BlocProvider.value(
+      value: socialCubit()..getUserData(),
+      child: Card(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        elevation: 0,
+        margin: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              height: 250,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Stack(
                     children: [
-                      AppBar(
-                        title: Text(
-                          "المنشورات",
-                          style: TextStyle(fontSize: 17),
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(15),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundImage: NetworkImage(
-                                '${model.model.image}',
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 12,
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text("${model.model.name}"),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                    ],
-                                  ),
-                                  Text(
-                                    "Public",
-                                    style: Theme.of(context).textTheme.bodySmall,
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 12,
-                            ),
-                            IconButton(
-                              onPressed: () {},
-                              icon: Icon(Icons.more_horiz),
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: TextFormField(
-                            controller: postController,
-                            maxLines: 10,
-                            decoration:
-                                InputDecoration(border: OutlineInputBorder(), hintText: "بم تفكر"),
-                          ),
-                        ),
-                      ),
-                      if (socialCubit.get(context).imagePost != null)
-                        Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                          padding: EdgeInsets.all(15),
-                          child: Stack(
-                            children: [
-                              Align(
-                                alignment: Alignment.topCenter,
-                                child: Image(
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: 230,
-                                    image: FileImage(model.imagePost)),
-                              ),
-                              CircleAvatar(
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.close,
-                                  ),
-                                  onPressed: () {
-                                    socialCubit.get(context).deletePostImage();
-                                  },
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ElevatedButton(
-                          onPressed: () {
-                            if (socialCubit.get(context).imagePost == null) {
-                              //add post without Image
-                              socialCubit.get(context).createNewPost(text: postController.text);
-                            } else {
-                              //add post with Image
-                              socialCubit.get(context).uploadPost(text: postController.text);
-                            }
-                          },
-                          child: Text("إضافة المنشور")),
-                      Row(
-                        children: [
-                          TextButton(
-                              onPressed: () {
-                                socialCubit.get(context).getImagePost();
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(Icons.image),
-                                  SizedBox(
-                                    width: 7,
-                                  ),
-                                  Text("اضافة صورة")
-                                ],
-                              ))
-                        ],
-                      )
-                    ],
-                  ),
-                );
-        },
-      ),
-    );
-Widget buildProfile(context, {model, profilemodel}) => Card(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      elevation: 0,
-      margin: EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Container(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            height: 250,
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: InkWell(
-                        onTap: () {
-                          buildImageView(context, imageurl: model.model.coverimage);
-                        },
-                        child: Image(
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: 230,
-                            image: NetworkImage("${model.model.coverimage}")),
-                      ),
-                    ),
-                    CircleAvatar(
-                      radius: 20,
-                      child: IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => BlocConsumer<socialCubit, socialStates>(
-                              listener: (context, state) {},
-                              builder: (context, state) {
-                                return state is socialUploadProfileCoverLoadingState
-                                    ? Center(
-                                        child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          const CircularProgressIndicator(),
-                                          Text("جار رفع صورة الغلاف برجاء الانتظار")
-                                        ],
-                                      ))
-                                    : AlertDialog(
-                                        content: SingleChildScrollView(
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text("تحميل صورة الغلاف"),
-                                              ConditionalBuilder(
-                                                condition: model.coverImage != null,
-                                                builder: (context) => Image(
-                                                  image: FileImage(model.coverImage),
-                                                ),
-                                                fallback: (context) => Text("اختر الصورة"),
-                                              ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  socialCubit.get(context).getCoverImage();
-                                                },
-                                                icon: Icon(Icons.camera),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      model.uploadCoverImage();
-                                                    },
-                                                    child: Text("رفع"),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      model.coverImage = null;
-                                                      Navigator.of(context).pop();
-                                                    },
-                                                    child: Text("الغاء"),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                              },
-                            ),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.photo_camera,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                CircleAvatar(
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  radius: 60,
-                  child: Stack(
-                    alignment: AlignmentDirectional.bottomStart,
-                    children: [
-                      Container(
-                        height: 200,
+                      Align(
+                        alignment: Alignment.topCenter,
                         child: InkWell(
                           onTap: () {
-                            buildImageView(context, imageurl: model.model.image);
+                            buildImageView(context,
+                                imageurl: socialCubit.get(context).model!.coverimage);
                           },
-                          child: CircleAvatar(
-                            radius: 55,
-                            backgroundImage: NetworkImage(
-                              '${model.model.image}',
-                            ),
-                          ),
+                          child: Image(
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: 230,
+                              image: NetworkImage("${socialCubit.get(context).model!.coverimage}")),
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => BlocConsumer<socialCubit, socialStates>(
-                              listener: (context, state) {},
-                              builder: (context, state) {
-                                return state is socialUploadProfileImageLoadingState
-                                    ? Center(
-                                        child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          const CircularProgressIndicator(),
-                                          Text("جار رفع الصورة برجاء الانتظار")
-                                        ],
-                                      ))
-                                    : AlertDialog(
-                                        content: SingleChildScrollView(
+                      CircleAvatar(
+                        radius: 20,
+                        child: IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => BlocConsumer<socialCubit, socialStates>(
+                                listener: (context, state) {
+                                  if (state is socialUploadProfileCoverSuccessState) {
+                                    socialCubit.get(context).coverImage = null;
+                                    Navigator.of(context).pop();
+                                    socialCubit.get(context).getUserData();
+                                    toastStyle(
+                                        context: context,
+                                        massege: "تم تحديث الصورة بنجاح",
+                                        colortoast: Colors.green);
+                                  }
+                                },
+                                builder: (context, state) {
+                                  return state is socialUploadProfileCoverLoadingState
+                                      ? Center(
                                           child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text("تحميل الصورة"),
-                                              ConditionalBuilder(
-                                                condition: model.profileimage != null,
-                                                builder: (context) => Image(
-                                                  image: FileImage(model.profileimage),
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: const [
+                                            CircularProgressIndicator(),
+                                            Text("جار رفع صورة الغلاف برجاء الانتظار")
+                                          ],
+                                        ))
+                                      : AlertDialog(
+                                          content: SingleChildScrollView(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Text("تحميل صورة الغلاف"),
+                                                ConditionalBuilder(
+                                                  condition:
+                                                      socialCubit.get(context).coverImage != null,
+                                                  builder: (context) => Image(
+                                                    image: FileImage(
+                                                        socialCubit.get(context).coverImage!),
+                                                  ),
+                                                  fallback: (context) => const Text("اختر الصورة"),
                                                 ),
-                                                fallback: (context) => Text("اختر الصورة"),
-                                              ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  socialCubit.get(context).getProfileImage();
-                                                },
-                                                icon: Icon(Icons.camera),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      model.uploadProfileImage();
-                                                    },
-                                                    child: Text("رفع"),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      model.profileimage = null;
-                                                      Navigator.of(context).pop();
-                                                    },
-                                                    child: Text("الغاء"),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
+                                                IconButton(
+                                                  onPressed: () {
+                                                    socialCubit.get(context).getCoverImage();
+                                                  },
+                                                  icon: const Icon(Icons.camera),
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        socialCubit.get(context).uploadCoverImage();
+                                                      },
+                                                      child: const Text("رفع"),
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        socialCubit.get(context).coverImage = null;
+
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: const Text("الغاء"),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      );
-                              },
-                            ),
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.photo_camera,
+                                        );
+                                },
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.photo_camera,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            child: Text(
-              "${model.model.name}",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            ),
-          ),
-          Container(
-            child: Text(
-              "${model.model.bio}",
-              style: Theme.of(context).textTheme.caption,
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildProfileInfo(
-                        iconData: Icons.leaderboard_rounded, text: model.model.education),
-                    SizedBox(
-                      height: 10,
+                  CircleAvatar(
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                    radius: 60,
+                    child: Stack(
+                      alignment: AlignmentDirectional.bottomStart,
+                      children: [
+                        SizedBox(
+                          height: 200,
+                          child: InkWell(
+                            onTap: () {
+                              buildImageView(context,
+                                  imageurl: socialCubit.get(context).model!.image);
+                            },
+                            child: CircleAvatar(
+                              radius: 55,
+                              backgroundImage: NetworkImage(
+                                '${socialCubit.get(context).model!.image}',
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => BlocConsumer<socialCubit, socialStates>(
+                                listener: (context, state) {
+                                  if (state is socialUploadProfileImageSuccessState) {
+                                    socialCubit.get(context).profileimage = null;
+
+                                    Navigator.of(context).pop();
+                                    socialCubit.get(context).getUserData();
+                                    toastStyle(
+                                        context: context,
+                                        massege: "تم تحديث الصورة بنجاح",
+                                        colortoast: Colors.green);
+                                  }
+                                },
+                                builder: (context, state) {
+                                  return state is socialUploadProfileImageLoadingState
+                                      ? Center(
+                                          child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: const [
+                                            CircularProgressIndicator(),
+                                            Text("جار رفع الصورة برجاء الانتظار")
+                                          ],
+                                        ))
+                                      : AlertDialog(
+                                          content: SingleChildScrollView(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Text("تحميل الصورة"),
+                                                ConditionalBuilder(
+                                                  condition:
+                                                      socialCubit.get(context).profileimage != null,
+                                                  builder: (context) => Image(
+                                                    image: FileImage(
+                                                        socialCubit.get(context).profileimage!),
+                                                  ),
+                                                  fallback: (context) => const Text("اختر الصورة"),
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    socialCubit.get(context).getProfileImage();
+                                                  },
+                                                  icon: const Icon(Icons.camera),
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        socialCubit
+                                                            .get(context)
+                                                            .uploadProfileImage();
+                                                      },
+                                                      child: const Text("رفع"),
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        socialCubit.get(context).profileimage =
+                                                            null;
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: const Text("الغاء"),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                },
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.photo_camera,
+                          ),
+                        ),
+                      ],
                     ),
-                    buildProfileInfo(iconData: Icons.date_range, text: model.model.date),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    buildProfileInfo(
-                        iconData: Icons.settings_accessibility_outlined,
-                        text: model.model.relationship),
-                    SizedBox(
-                      height: 10,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          )
-        ],
+            Text(
+              "${socialCubit.get(context).model!.name}",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            if (socialCubit.get(context).model!.bio != '')
+              Text(
+                "${socialCubit.get(context).model!.bio}",
+                style: Theme.of(context).textTheme.caption,
+              ),
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (socialCubit.get(context).model!.education != '')
+                        Column(
+                          children: [
+                            buildProfileInfo(
+                                iconData: Icons.leaderboard_rounded,
+                                text: socialCubit.get(context).model!.education),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        ),
+                      if (socialCubit.get(context).model!.date != '')
+                        Column(
+                          children: [
+                            buildProfileInfo(
+                              iconData: Icons.date_range,
+                              text: "${socialCubit.get(context).model!.date}",
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        ),
+                      if (socialCubit.get(context).model!.relationship != '')
+                        Column(
+                          children: [
+                            buildProfileInfo(
+                                iconData: Iconsax.chart1,
+                                text: socialCubit.get(context).model!.relationship),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        ),
+                      buildProfileInfo(
+                          iconData: Iconsax.chart1,
+                          text: "انضممت في ${socialCubit.get(context).model!.joinedis}"),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      buildProfileInfo(
+                          iconData: Iconsax.mobile,
+                          text: " ${socialCubit.get(context).model!.phone}"),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
 Widget buildProfileInfo({IconData? iconData, String? text}) => Row(
@@ -521,51 +434,9 @@ Widget buildFollowing(context) => Container(
               onTap: () {},
               child: Column(
                 children: [
-                  Text("85"),
+                  Text('${socialCubit.get(context).postsCount}'),
                   Text(
-                    "Following",
-                    style: Theme.of(context).textTheme.caption,
-                  )
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: InkWell(
-              onTap: () {},
-              child: Column(
-                children: [
-                  Text("20K"),
-                  Text(
-                    "Followers",
-                    style: Theme.of(context).textTheme.caption,
-                  )
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: InkWell(
-              onTap: () {},
-              child: Column(
-                children: [
-                  Text("311"),
-                  Text(
-                    "Photos",
-                    style: Theme.of(context).textTheme.caption,
-                  )
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: InkWell(
-              onTap: () {},
-              child: Column(
-                children: [
-                  Text("223"),
-                  Text(
-                    "Post",
+                    "Private Posts",
                     style: Theme.of(context).textTheme.caption,
                   )
                 ],

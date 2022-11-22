@@ -22,6 +22,8 @@ class socialGetAllUsersErorrState extends socialStates {
   socialGetAllUsersErorrState(this.Erorr);
 }
 
+class socialChangedropdownState extends socialStates {}
+
 class socialChangebuttomNavState extends socialStates {}
 
 class socialChangeDateState extends socialStates {}
@@ -78,11 +80,9 @@ class socialGetPostsLoadingState extends socialStates {}
 
 class socialGetPostsSuccessState extends socialStates {}
 
-class socialGetPostsErorrState extends socialStates {
-  final String? Erorr;
+class socialGetPublicPostsLoadingState extends socialStates {}
 
-  socialGetPostsErorrState(this.Erorr);
-}
+class socialGetPublicPostsSuccessState extends socialStates {}
 
 class socialLikePostSuccessState extends socialStates {}
 
@@ -103,6 +103,10 @@ class socialCommentPostErorrState extends socialStates {
 class socialGetCommentPostLoadingState extends socialStates {}
 
 class socialGetCommentPostSuccessState extends socialStates {}
+
+class socialGetLikesPrivatePostSuccessState extends socialStates {}
+
+class socialGetLikesPostSuccessState extends socialStates {}
 
 class socialGetCommentPostErorrState extends socialStates {
   final String? Erorr;
@@ -131,3 +135,5 @@ class socialUploadImageMessageLoadingState extends socialStates {}
 class socialUploadImageMessageSuccessState extends socialStates {}
 
 class socialUploadImageMessageErorrState extends socialStates {}
+
+class seachuser extends socialStates {}

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_app_sochial/shared/Cubit/LoginCubit/states.dart';
 
+import '../AppCubit/cubit.dart';
+
 class socialLoginCubit extends Cubit<socialLoginState> {
   socialLoginCubit() : super(socialLoginInitialState());
   static socialLoginCubit get(context) => BlocProvider.of(context);
@@ -19,7 +21,7 @@ class socialLoginCubit extends Cubit<socialLoginState> {
     FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password)
         .then((value) {
-      emit(socialLoginSuccessState(value.user!.uid));
+      emit(socialLoginSuccessState(uId: value.user!.uid));
     }).catchError((onError) {
       emit(socialLoginErorrState(onError.toString()));
     });
